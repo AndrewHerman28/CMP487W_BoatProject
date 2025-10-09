@@ -1,2 +1,4 @@
 # CMP487W_BoatProject
-Description Here
+
+## Link to site
+https://andrewherman28.github.io/CMP487W_BoatProject/

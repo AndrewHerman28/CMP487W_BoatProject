@@ -1,41 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="style.css">
-<title>The PSU Abington Boat Building Project</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | PSU Abington Boat Project</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" defer></script>
 </head>
 <body>
-  <script src="test.js"></script> 
-<h1 style="text-align: center">
-    The PSU Abington Boat Building Project</h1>
-<h2 style="text-align: center">"Insert tagline and header image here"</h2>
+<header>
+    <nav class="navbar">
+        <h1 class="logo">Penn State Abington Builds a Wooden Boat</h1>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="archive.html">Archive</a></li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
+</header>
 
-<div style="text-align: center;" class="tab">
-    <button class="tablinks" onclick="openTab(event, 'Home')">Home</button>
-    <button class="tablinks" onclick="openTab(event, 'Blog')">Blog</button>
-    <button class="tablinks" onclick="openTab(event, 'Archive')">Archive</button>
-    <button class="tablinks" onclick="openTab(event, 'Contact')">Contact</button>
-  </div>
-  
-  <div style="text-align: left;" id="Home" class="tabcontent">
-    <h3>Home</h3>
-    <p>Add home page content here</p>
-  </div>
+<section class="search-section">
+    <input type="text" id="searchBar" placeholder="Search blog posts...">
+    <button onclick="searchPosts()">Search</button>
+    <select id="filterDropdown">
+        <option value="all">All Projects</option>
+        <option value="current">Current</option>
+        <option value="archived">Archived</option>
+    </select>
+    <button id="uploadBtn">Upload</button>
+</section>
 
-  <div style="text-align: left;" id="Blog" class="tabcontent">
-    <h3>Current Project Blog</h3>
-    <p>Add current blog posts here</p>
-  </div>
-  
-  <div style="text-align: left;" id="Archive" class="tabcontent">
-    <h3>Previous Project Blog Posts + Gallery Images</h3>
-    <p>Add any old blog posts and gallery images here</p>
-  </div>
-  
-  <div style="text-align: left;" id="Contact" class="tabcontent">
-    <h3>Contact Information</h3>
-    <p>Add Professor Thompson and student bios here</p>
-  </div>
+<main id="content-area">
+    <h2>Introduction and Overview</h2>
+    <p>This blog will document the weekly progress of a wooden boat built by Penn State Abington students participating
+        in a sequence of courses held on-site at Independence Seaport Museum’s Workshop on the Water at Penn’s Landing
+        in Philadelphia.
 
+        Courses are co-taught by Penn State Abington Art Department faculty members H. John Thompson, Associate Teaching
+        Professor of Art, and Bonnie Levinthal, Professor of Art, in collaboration with David Dormond, Workshop on the
+        Water Assistant Director and Shop Educator.</p>
+    <button id="currentProjectBtn">Go to Current Project Blog</button>
+</main>
+
+<footer>
+    <p>&copy; 2025 Penn State Abington | Boat Project</p>
+</footer>
 </body>
 </html>

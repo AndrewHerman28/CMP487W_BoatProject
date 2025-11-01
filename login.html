@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | PSU Abington Boat Project</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="../main.js" defer></script>
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <h1 class="logo">Login</h1>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="archive.html">Archive</a></li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main id="blog-content">
+    <h2>Login</h2>
+    <div style="text-align: left;" id="SignIn" class="tabcontent">
+        <h3>Sign In</h3>
+        <form onsubmit="handleSignIn(event)">
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+            
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required><br><br>
+            
+            <button type = "submit">Sign in</button>
+        </form>
+        <p id="signinMessage" style="color: green; font-weight: bold;"></p>
+    </div>
+    <div style="text-align: left;" id="Register" class="tabcontent">
+      <form onsubmit="handleRegister(event)">
+        <!--<label for="firstname">First Name:</label><br>
+        <input type="text" id="firstname" name="firstname" required><br><br>
+        *Name will be useful later*
+        <label for="lastname">Last Name:</label><br>
+        <input type="text" id="lastname" name="lastname" required><br><br>
+      --> 
+        <label for="registeremail">Email:</label><br>
+        <input type="email" id="registeremail" name="email" required><br><br>
+            
+        <label for="registerpassword">Password:</label><br>
+        <input type="password" id="registerpassword" name="password" required><br><br>
+            
+        <button type="submit">Register</button>
+      </form>
+    
+      <p id="signinMessageR" style="color: rgb(240, 88, 113); font-weight: bold;"></p>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2025 Penn State Abington | Boat Project</p>
+</footer>
+</body>
+</html>

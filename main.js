@@ -1,3 +1,7 @@
+document.getElementById("currentProjectBtn").addEventListener("click", () => {
+    window.location.href = "blog.html";
+  });
+
 function openTab(evt, tabName) {
     // Declare all variables
     var i, tabcontent, tablinks;

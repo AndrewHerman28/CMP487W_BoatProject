@@ -2,6 +2,11 @@ document.getElementById("currentProjectBtn").addEventListener("click", () => {
     window.location.href = "blog.html";
   });
 
+document.getElementById("signinMessage").innerText = "Signing in...";
+setTimeout(() => {
+    window.location.replace("Website/index.html");
+}, 1000);
+
 function openTab(evt, tabName) {
     // Declare all variables
     var i, tabcontent, tablinks;

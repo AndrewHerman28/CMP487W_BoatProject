@@ -26,7 +26,7 @@ window.handleSignIn = async function(event) {
       console.log("Firebase response:", userCredential);
       document.getElementById("signinMessage").innerText = "Sign-in successful!";
       document.getElementById("signinMessage").style.color = "green";
-      window.location.href="homepage.html"; // Redirects to admin page
+      window.location.href="index.html"; // Redirects to admin page
   } catch (error) {
       console.error("Sign-in error:", error);
       document.getElementById("signinMessage").innerText = error.message;

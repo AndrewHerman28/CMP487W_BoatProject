@@ -4,7 +4,7 @@ document.getElementById("currentProjectBtn").addEventListener("click", () => {
 
 document.getElementById("signinMessage").innerText = "Signing in...";
 setTimeout(() => {
-    window.location.replace("Website/index.html");
+    window.location.replace("index.html");
 }, 1000);
 
 function openTab(evt, tabName) {

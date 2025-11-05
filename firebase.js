@@ -1,6 +1,6 @@
 // Your web app's Firebase configuration
-import { initializeApp } from " ";
-import { getAuth, createUserWithEmailAndPassword,  signInWithEmailAndPassword } from " ";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword,  signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 const firebaseConfig = {
   apiKey: "AIzaSyA93kGndvJF7ur2I9DueMpqlNhjOWzl-b8",
     authDomain: "myfrontendauth1.firebaseapp.com",

@@ -1,119 +1,184 @@
 /* General reset */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 html, body {
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
-  color: #222;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #222;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 main {
-  flex: 1; /* Push Footer Down */
-}
-
-#currentProjectBtn {
-  background-color: #002d72;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-#currentProjectBtn:hover {
-  background-color: #004aad;
+    flex: 1; /* Push footer down */
 }
 
 /* NAVBAR */
 .navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #002d72; /* Penn State blue */
-  color: white;
-  padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #002d72;
+    color: white;
+    padding: 12px 24px;
 }
 
 .navbar .logo {
-  font-size: 20px;
+    font-size: 20px;
 }
 
 .nav-links {
-  list-style: none;
-  display: flex;
-  gap: 20px;
+    list-style: none;
+    display: flex;
+    gap: 20px;
 }
 
 .nav-links a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: text-decoration 0.3s ease;
 }
 
 .nav-links a:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 /* SEARCH SECTION */
 .search-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  background-color: #e9ecef;
-  padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background-color: #e9ecef;
+    padding: 15px;
 }
 
 .search-section input,
 .search-section select,
 .search-section button {
-  padding: 8px 12px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
 }
 
-/* MAIN CONTENT */
+/* MAIN CONTENT WRAPPER */
 #content-area {
-  position: relative;
-  max-width: 1000px;
-  margin: 40px auto;
-  background: white;
-  padding: 40px 20px 80px; /* extra bottom padding for button space */
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    max-width: 1000px;
+    margin: 40px auto;
+    background: white;
+    padding: 40px 20px 80px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+/* FLEX WRAPPER FOR AUTH FORMS */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+/* SHARED FORM CONTAINERS */
+.login-container,
+.register-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+/* SHARED FORM STYLING */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+form h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+form label {
+    font-weight: bold;
+}
+
+form input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+form input:focus {
+    outline: none;
+    border-color: #004aad;
+}
+
+form button {
+    padding: 10px;
+    background-color: #002d72;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #004aad;
+}
+
+#signinMessage,
+#signinMessageR {
+    text-align: center;
+    font-weight: bold;
+    color: rgb(240, 88, 113);
+}
+
+/* CURRENT PROJECT BUTTON */
 #currentProjectBtn {
-  position: absolute;
-  bottom: 20px; /* distance from bottom edge */
-  left: 50%;
-  transform: translateX(-50%); /* center horizontally */
-  background-color: #002d72;
-  color: white;
-  border: none;
-  padding: 10px 25px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #002d72;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
 #currentProjectBtn:hover {
-  background-color: #004aad;
+    background-color: #004aad;
 }
 
 /* FOOTER */
 footer {
-  text-align: center;
-  padding: 15px;
-  background-color: #002d72;
-  color: white;
-  margin-top: 40px;
+    text-align: center;
+    padding: 15px;
+    background-color: #002d72;
+    color: white;
+    margin-top: 40px;
+}
+
+/* RESPONSIVE STACKING */
+@media (max-width: 768px) {
+    .auth-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
 }

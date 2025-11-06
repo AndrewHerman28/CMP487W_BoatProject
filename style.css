@@ -1,34 +1,313 @@
-body {
-    background-color: rgb(134, 197, 218);
-  }
-  
-  h1 {
-    color: navy;
-  }       
-
-/* Create an active/current tablink class */
-.tab button.active {
-  background-color:  rgb(54, 173, 212);
+/* General reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.button-wrapper {
-  display: flex;
-  gap: 15px; /* Space between buttons */
-  justify-content: center; /* Center buttons horizontally within their wrapper */
+html, body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #222;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
-.tablinks
-  {
-    width: 150px;
-    height: 40px;
-    background-color: transparent;
+
+main {
+    flex: 1; /* Push footer down */
+}
+
+/* NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #002d72;
+    color: white;
+    padding: 12px 24px;
+}
+
+.navbar .logo {
     font-size: 20px;
-    border: dotted;
-    border-radius: 20px;
-  }
-
-.tabcontent {
-  display: none;
-  padding: 6px 12px;
-  text-align: center;
-  border-top: none;
 }
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: text-decoration 0.3s ease;
+}
+
+.nav-links a:hover {
+    text-decoration: underline;
+}
+
+/* SEARCH SECTION */
+.search-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background-color: #e9ecef;
+    padding: 15px;
+}
+
+.search-section input,
+.search-section select,
+.search-section button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* MAIN CONTENT WRAPPER */
+#content-area {
+    position: relative;
+    max-width: 1000px;
+    margin: 40px auto;
+    background: white;
+    padding: 40px 20px 80px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* FLEX WRAPPER FOR AUTH FORMS */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+/* SHARED FORM CONTAINERS */
+.login-container,
+.register-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+/* SHARED FORM STYLING */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+form h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+form label {
+    font-weight: bold;
+}
+
+form input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+form input:focus {
+    outline: none;
+    border-color: #004aad;
+}
+
+form button {
+    padding: 10px;
+    background-color: #002d72;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #004aad;
+}
+
+#signinMessage,
+#signinMessageR {
+    text-align: center;
+    font-weight: bold;
+    color: rgb(240, 88, 113);
+}
+
+/* CURRENT PROJECT BUTTON */
+#currentProjectBtn {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #002d72;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#currentProjectBtn:hover {
+    background-color: #004aad;
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #002d72;
+    color: white;
+    margin-top: 40px;
+}
+
+/* Blog intro */
+#blog-intro h2 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+
+/* Section spacing */
+.qa-section,
+.support-section {
+    margin-bottom: 40px;
+}
+
+.qa-section h3,
+.support-section h2 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #002d72;
+}
+
+/* Paragraph spacing */
+.qa-section p {
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+/* Image layout */
+.image-row {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.image-row img {
+    max-width: 45%;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* List styling */
+ul {
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+ul li {
+    margin-bottom: 8px;
+}
+
+/* Link styling */
+a {
+    color: #004aad;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #00bdff;
+    text-decoration: underline;
+}
+
+section {
+    animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    max-width: 1750px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.media-item {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    border-bottom: 1px solid #ccc;
+}
+
+.media-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.media-item img {
+    width: 100%;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.media-item h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #002d72;
+}
+
+.media-item h3 a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+.media-item h3 a:hover {
+    color: #004aad;
+}
+
+.media-item p {
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Responsive stacking for auth forms (unrelated but still useful) */
+@media (max-width: 768px) {
+    .auth-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+

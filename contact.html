@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | PSU Abington Boat Project</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="main.js" defer></script>
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <h1 class="logo">Contacts</h1>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="media.html">Media</a></li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div>
+    <button type="submit" id="adminContactButton">Upload Contact</button>
+</div>
+
+<main id="content-area">
+    <div>
+    <form id="uploadContactForm">
+        <h2>Upload Contact</h2>
+        <input type="text" id="name" placeholder="Name" required/>
+        <input type="file" placeholder="Add Image" accept="image/*">
+        <input type="text" id="email" placeholder="Email" required/>
+        <input type="text" id="paragraph" placeholder="Division" required/>
+        <input type="text" id="paragraph" placeholder="Project" required/>
+        <button type="submit" id="signinBtn">Upload</button>
+    </form>
+</div>
+</main>
+
+<footer>
+    <p>&copy; 2025 Penn State Abington | Boat Project</p>
+</footer>
+</body>
+</html>

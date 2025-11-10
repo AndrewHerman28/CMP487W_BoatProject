@@ -17,18 +17,17 @@
         return false;
       });
 
-
 // Your web app's Firebase configuration
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
   import { getAuth,onAuthStateChanged, createUserWithEmailAndPassword,  signInWithEmailAndPassword, sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
   //----Question------ Is this safe - Will public see this?
  const firebaseConfig = {
-  apiKey: "AIzaSyA93kGndvJF7ur2I9DueMpqlNhjOWzl-b8",
-  authDomain: "myfrontendauth1.firebaseapp.com",
-  projectId: "myfrontendauth1",
-  storageBucket: "myfrontendauth1.firebasestorage.app",
-  messagingSenderId: "568504315895",
-  appId: "1:568504315895:web:1e7ddb91a27296d4e248f2"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -54,7 +53,6 @@ async function handleSignIn(event) {
         document.getElementById("signinMessage").style.color = "red";
     }
 }
-
 // Register handler
 async function handleRegister(event) {
     event.preventDefault();

@@ -1,20 +1,34 @@
 
-// Your web app's Firebase configuration
-import {initializeApp} from "";
-import {
-    getAuth,
-    onAuthStateChanged,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
-} from "";
+ const loginText = document.querySelector(".title-text .login");
+      const loginForm = document.querySelector("form.login");
+      const loginBtn = document.querySelector("label.login");
+      const signupBtn = document.querySelector("label.signup");
+      const signupLink = document.querySelector("form .signup-link a");
+      signupBtn.onclick = (()=>{
+        loginForm.style.marginLeft = "-50%";
+        loginText.style.marginLeft = "-50%";
+      });
+      loginBtn.onclick = (()=>{
+        loginForm.style.marginLeft = "0%";
+        loginText.style.marginLeft = "0%";
+      });
+      signupLink.onclick = (()=>{
+        signupBtn.click();
+        return false;
+      });
 
-const firebaseConfig = {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+
+// Your web app's Firebase configuration
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getAuth,onAuthStateChanged, createUserWithEmailAndPassword,  signInWithEmailAndPassword, sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+  //----Question------ Is this safe - Will public see this?
+ const firebaseConfig = {
+  apiKey: "AIzaSyA93kGndvJF7ur2I9DueMpqlNhjOWzl-b8",
+  authDomain: "myfrontendauth1.firebaseapp.com",
+  projectId: "myfrontendauth1",
+  storageBucket: "myfrontendauth1.firebasestorage.app",
+  messagingSenderId: "568504315895",
+  appId: "1:568504315895:web:1e7ddb91a27296d4e248f2"
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -61,31 +75,28 @@ async function handleRegister(event) {
         document.getElementById("signinMessageR").style.color = "red";
     }
 }
+async function handleForgotPassword(event) {
+    event.preventDefault();
 
-async function handleSignOut(event) {
-  event.preventDefault();
+    const email = document.getElementById("email").value;
+    if (!email) {
+        alert("Please enter your email above first.");
+        return;
+    }
 
-      firebase.auth().signOut().then(() => {
-        document.getElementById("signOutMessage").innerText = "User signed out successfully!";
-        document.getElementById("signOutMessage").style.color = "pink";
-      }).catch((error) => {
-        console.error("Signing Out error");
-        document.getElementById("signOutMessageFail").innerText = "Error in sign out!";
-        document.getElementById("signOutMessageFail").style.color = "red";
-      });
-
-  }
+    try {
+        await sendPasswordResetEmail(auth, email);
+        alert("Password reset email sent! Check your inbox.");
+    } catch (error) {
+        alert("Error: " + error.message);
+    }
+}
 
 // Attach form listeners after DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
-    const signOut = document.getElementById("signoutBtn");
-    const adminUploadContact = document.getElementById("adminContactButton");
-    
-    const user = firebase.auth().currentUser;
-    const emailField = document.getElementById("email");
-    const passwordField = document.getElementById("password");
+    const forgotP = document.getElementById("forgotPassword"); 
 
     if (loginForm) {
         loginForm.addEventListener("submit", handleSignIn);
@@ -94,25 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (registerForm) {
         registerForm.addEventListener("submit", handleRegister);
     }
-
-    if (signOut) {
-      signOut.addEventListener("submit", handleSignOut);
-    }
-
-    // Unsure if this works
-    if (user) {
-      emailField.disabled = true;
-      passwordField.disabled = true;
-    }
-    else {
-      emailField.disabled = false;
-      passwordField.disabled = false;
-    }
-
-    // When upload contact button pressed, show form similar to media upload to upload contact to page
-    if (adminUploadContact){
-
-    }
+    if (forgotP) forgotP.addEventListener("click", handleForgotPassword);
 
     // Detect if user is already signed in
     onAuthStateChanged(auth, (user) => {

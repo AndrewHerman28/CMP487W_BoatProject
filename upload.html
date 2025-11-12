@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | PSU Abington Boat Project</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" defer></script>
+    <script type="module" src="firebase.js"></script>
+</head>
+
+<header>
+    <nav class="navbar">
+        <h1 class="logo">Post</h1>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="media.html">Media</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="AdminPost.html">Post</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main id="post-area">
+    <div class="auth-wrapper">
+        <div class="post-container">
+            <form id="postForm">
+                <h2>Upload To Blog</h2>
+                <input type="text" id="post_header" placeholder="Header" required/>
+                <input type="date" id="post_date" required/>
+                <input type="file" id="post_img" accept="image/*" required/>
+                <input type="text" id="post_link" placeholder="Link" required/>
+                <textarea id="post_content" placeholder="Content" required></textarea>
+                <button type="submit" id="postBtn">Post</button>
+                <p id="postMessage"></p>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <img src="Images/psu_abington_logo.jpg" alt="PSU Abington Logo" width="282" height="100">
+
+    <p>&copy; 2025 Penn State Abington | Boat Project</p>
+</footer>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | PSU Abington Boat Project</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" defer></script>
+    <script type="module" src="firebase.js"></script>
+</head>
+
+<header>
+    <nav class="navbar">
+        <h1 class="logo">Post</h1>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="media.html">Media</a></li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main id="content-area">
+    <div class="auth-wrapper">
+        <div class="login-container">
+            <form id="loginForm">
+                <h2>Upload To Blog</h2>
+                <input type="text" id="header" placeholder="header" required/>
+                <input type="date" id="date" placeholder="date" required/>
+                <input type="file" accept="image/*">
+                <input type="text" id="link" placeholder="link" required/>
+                <input type="text" id="paragraph" placeholder="paragraph" required/>
+
+                <button type="submit" id="uploadContact">Upload Contact</button>
+            </form>
+        </div>
+    </div>
+</main>

@@ -100,23 +100,37 @@ function setupLogoutButton() {
 }
 
 // User already signed in check
-onAuthStateChanged(auth, (user) => {
-    const statusTag = document.getElementById("loginStatus");
+function setupAuthLink() {
+    const authLink = document.getElementById("authLink");
+    if (!authLink) return;
 
-    if (user) {
-        console.log("User is logged in:", user.email);
-        if (statusTag) {
-            statusTag.innerText = "✅ Logged In";
-            statusTag.style.color = "green";
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is logged in → show email + logout
+            authLink.innerText = `${user.email} (Logout)`;
+            authLink.style.color = "green";
+
+            authLink.onclick = async (e) => {
+                e.preventDefault();
+                const confirmLogout = confirm(`Sign out ${user.email}?`);
+                if (confirmLogout) {
+                    await signOut(auth);
+                    console.log("User signed out");
+                    window.location.href = "login.html"; // optional redirect
+                }
+            };
+        } else {
+            // User is logged out → show Login
+            authLink.innerText = "Login";
+            authLink.style.color = "white";
+
+            authLink.onclick = (e) => {
+                e.preventDefault();
+                window.location.href = "login.html"; // go to login page
+            };
         }
-    } else {
-        console.log("No user logged in");
-        if (statusTag) {
-            statusTag.innerText = "❌ Not Logged In";
-            statusTag.style.color = "red";
-        }
-    }
-});
+    });
+}
 
 
 // Sign-in handler
@@ -243,22 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setupRegisterForm();
     setupPostForm();
     setupLoginToggle();
-    setupLogoutButton();
-
-    const forgotP = document.getElementById("forgotPassword");
-    if (forgotP) {
-        forgotP.addEventListener("click", handleForgotPassword);
-    }
-
-    onAuthStateChanged(auth, (user) => {
-        const justSignedIn = localStorage.getItem("justSignedIn");
-
-        if (user && justSignedIn === "true") {
-            localStorage.removeItem("justSignedIn");
-            window.location.href = "index.html";
-        } else if (user) {
-            console.log("User already signed in:", user.email);
-        }
-    });
+    setupAuthLink();
 });
 

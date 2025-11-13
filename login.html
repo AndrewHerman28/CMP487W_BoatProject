@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="login.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | PSU Abington Boat Project</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="login.css">
     <script type="module" src="firebase.js"></script>
     <script type="module" src="main.js"></script>
 
-    
+
 </head>
 <body>
 <header>
@@ -21,59 +22,70 @@
             <li><a href="contact.html">Contact</a></li>
             <li><a href="media.html">Media</a></li>
             <li><a href="login.html">Login</a></li>
+            <li><a href="admin.html">Upload</a></li>
+            <li><a href="#" id="logoutBtn">Logout</a></li>
         </ul>
     </nav>
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <p>Are you sure you want to sign out?</p>
+            <button id="confirmLogout">Yes, Sign Out</button>
+            <button id="cancelLogout">Cancel</button>
+        </div>
+    </div>
 </header>
 
 <main id="content-area">
-      <div class="wrapper">
-      <div class="title-text">
-        <div class="title login">Login Form</div>
-        <div class="title signup">Signup Form</div>
-      </div>
-      <div class="form-container">
-        <div class="slide-controls">
-          <input type="radio" name="slide" id="login" checked>
-          <input type="radio" name="slide" id="signup">
-          <label for="login" class="slide login">Login</label>
-          <label for="signup" class="slide signup">Signup</label>
-          <div class="slider-tab"></div>
+    <div class="wrapper">
+        <div class="title-text">
+            <div class="title login">Login Form</div>
+            <div class="title signup">Signup Form</div>
         </div>
-        <div class="form-inner">
-          <form id="loginForm" class="login">
-            <div class="field">
-              <input type="email" id="email" placeholder="Email" required/>
+        <div class="form-container">
+            <div class="slide-controls">
+                <input type="radio" name="slide" id="login" checked>
+                <input type="radio" name="slide" id="signup">
+                <label for="login" class="slide login">Login</label>
+                <label for="signup" class="slide signup">Signup</label>
+                <div class="slider-tab"></div>
             </div>
-            <div class="field">
-              <input type="password" id="password" placeholder="Password" required/>
-            </div>
-            <div id="signinMessage" style="color:red; margin-top:10px; text-align:center;"></div>
-            <div class="pass-link"><a href="#" id="forgotPassword">Forgot password?</a></div>
-            <div class="field btn">
-              <div class="btn-layer"></div>
-              <input type="submit" id="signinBtn">
-            </div>
-            <div class="signup-link">Don't have an account? <a href="">Signup now</a></div>
-          </form>
-          <form id="registerForm" class="signup">
-          <div class="field">
-          <input type="email" id="registeremail" name="email" placeholder="Enter your email" required/>
-          </div>
-          <div class="field">
-          <input type="password" id="registerpassword" name="password" placeholder="Create a password" required/>
-          </div>
-          <div id="signinMessageR" style="color:red; margin-top:10px; text-align:center;"></div>
-  <!---<div class="field">
-  <input type="password" id="registerconfirmpassword" name="confirmpassword" placeholder="Create a password" required/>
-  </div>-->
-      <div class="field btn">
-    <div class="btn-layer"></div>
-    <input type="submit" value="Signup">
-  </div>
-</form>
+            <div class="form-inner">
+                <form id="loginForm" class="login">
+                    <div class="field">
+                        <input type="email" id="email" placeholder="Email" required/>
+                    </div>
+                    <div class="field">
+                        <input type="password" id="password" placeholder="Password" required/>
+                    </div>
+                    <div id="signinMessage" style="color:red; margin-top:10px; text-align:center;"></div>
+                    <div class="pass-link"><a href="#" id="forgotPassword">Forgot password?</a></div>
+                    <div class="field btn">
+                        <div class="btn-layer"></div>
+                        <input type="submit" id="signinBtn">
+                    </div>
+                    <div class="signup-link">Don't have an account? <a href="">Signup now</a></div>
+                </form>
+                <form id="registerForm" class="signup">
+                    <div class="field">
+                        <input type="email" id="registeremail" name="email" placeholder="Enter your email" required/>
+                    </div>
+                    <div class="field">
+                        <input type="password" id="registerpassword" name="password" placeholder="Create a password"
+                               required/>
+                    </div>
+                    <div id="signinMessageR" style="color:red; margin-top:10px; text-align:center;"></div>
+                    <!---<div class="field">
+                    <input type="password" id="registerconfirmpassword" name="confirmpassword" placeholder="Create a password" required/>
+                    </div>-->
+                    <div class="field btn">
+                        <div class="btn-layer"></div>
+                        <input type="submit" value="Signup">
+                    </div>
+                </form>
 
+            </div>
         </div>
-      </div>
     </div>
 
 

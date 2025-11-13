@@ -1,37 +1,122 @@
+// Wweb app's Firebase configuration
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import {
+    getAuth,
+    onAuthStateChanged,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
- const loginText = document.querySelector(".title-text .login");
-      const loginForm = document.querySelector("form.login");
-      const loginBtn = document.querySelector("label.login");
-      const signupBtn = document.querySelector("label.signup");
-      const signupLink = document.querySelector("form .signup-link a");
-      signupBtn.onclick = (()=>{
-        loginForm.style.marginLeft = "-50%";
-        loginText.style.marginLeft = "-50%";
-      });
-      loginBtn.onclick = (()=>{
-        loginForm.style.marginLeft = "0%";
-        loginText.style.marginLeft = "0%";
-      });
-      signupLink.onclick = (()=>{
-        signupBtn.click();
-        return false;
-      });
+import {
+    getStorage,
+    ref,
+    uploadBytes,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-storage.js";
 
-// Your web app's Firebase configuration
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-  import { getAuth,onAuthStateChanged, createUserWithEmailAndPassword,  signInWithEmailAndPassword, sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-  //----Question------ Is this safe - Will public see this?
- const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+
+//----Question------ Is this safe - Will public see this?
+const firebaseConfig = {
+    apiKey: "AIzaSyA93kGndvJF7ur2I9DueMpqlNhjOWzl-b8",
+    authDomain: "myfrontendauth1.firebaseapp.com",
+    projectId: "myfrontendauth1",
+    storageBucket: "myfrontendauth1.appspot.com",
+    messagingSenderId: "568504315895",
+    appId: "1:568504315895:web:1e7ddb91a27296d4e248f2"
 };
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+function setupLoginToggle() {
+    const loginText = document.querySelector(".title-text .login");
+    const loginForm = document.querySelector("form.login");
+    const loginBtn = document.querySelector("label.login");
+    const signupBtn = document.querySelector("label.signup");
+    const signupLink = document.querySelector("form .signup-link a");
+
+    // Only run if these elements exist (login page)
+    if (loginText && loginForm && loginBtn && signupBtn) {
+        signupBtn.addEventListener("click", () => {
+            loginForm.style.marginLeft = "-50%";
+            loginText.style.marginLeft = "-50%";
+        });
+
+        loginBtn.addEventListener("click", () => {
+            loginForm.style.marginLeft = "0%";
+            loginText.style.marginLeft = "0%";
+        });
+    }
+
+    if (signupLink && signupBtn) {
+        signupLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            signupBtn.click(); // simulate clicking signup tab
+        });
+    }
+}
+
+function setupLogoutButton() {
+    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutModal = document.getElementById("logoutModal");
+    const confirmLogout = document.getElementById("confirmLogout");
+    const cancelLogout = document.getElementById("cancelLogout");
+
+    if (logoutBtn && logoutModal && confirmLogout && cancelLogout) {
+        // Show modal when logout button is clicked
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            logoutModal.style.display = "block";
+        });
+
+        // Confirm logout
+        confirmLogout.addEventListener("click", async () => {
+            try {
+                await signOut(auth);
+                console.log("User signed out");
+                logoutModal.style.display = "none";
+                window.location.href = "login.html"; // optional redirect
+            } catch (error) {
+                console.error("Sign-out error:", error);
+            }
+        });
+
+        // Cancel logout
+        cancelLogout.addEventListener("click", () => {
+            logoutModal.style.display = "none";
+        });
+    }
+}
+
+// User already signed in check
+onAuthStateChanged(auth, (user) => {
+    const statusTag = document.getElementById("loginStatus");
+
+    if (user) {
+        console.log("User is logged in:", user.email);
+        if (statusTag) {
+            statusTag.innerText = "✅ Logged In";
+            statusTag.style.color = "green";
+        }
+    } else {
+        console.log("No user logged in");
+        if (statusTag) {
+            statusTag.innerText = "❌ Not Logged In";
+            statusTag.style.color = "red";
+        }
+    }
+});
 
 
 // Sign-in handler
@@ -53,6 +138,7 @@ async function handleSignIn(event) {
         document.getElementById("signinMessage").style.color = "red";
     }
 }
+
 // Register handler
 async function handleRegister(event) {
     event.preventDefault();
@@ -73,6 +159,7 @@ async function handleRegister(event) {
         document.getElementById("signinMessageR").style.color = "red";
     }
 }
+
 async function handleForgotPassword(event) {
     event.preventDefault();
 
@@ -90,22 +177,79 @@ async function handleForgotPassword(event) {
     }
 }
 
-// Attach form listeners after DOM is ready
-document.addEventListener("DOMContentLoaded", () => {
+// ============================== Attach form listeners ====================
+// Setup login and register forms
+function setupLoginForm() {
     const loginForm = document.getElementById("loginForm");
-    const registerForm = document.getElementById("registerForm");
-    const forgotP = document.getElementById("forgotPassword"); 
-
     if (loginForm) {
         loginForm.addEventListener("submit", handleSignIn);
     }
+}
 
+// Setup register form
+function setupRegisterForm() {
+    const registerForm = document.getElementById("registerForm");
     if (registerForm) {
         registerForm.addEventListener("submit", handleRegister);
     }
-    if (forgotP) forgotP.addEventListener("click", handleForgotPassword);
+}
 
-    // Detect if user is already signed in
+// Setup post form
+function setupPostForm() {
+    const postForm = document.getElementById("postForm");
+    if (postForm) {
+        postForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById("post_header").value;
+            const date = document.getElementById("post_date").value;
+            const link = document.getElementById("post_link").value;
+            const content = document.getElementById("post_content").value;
+            const imageFile = document.getElementById("post_img").files[0];
+
+            if (!imageFile) {
+                document.getElementById("postMessage").innerText = "Please select an image.";
+                return;
+            }
+
+            try {
+                const imageRef = ref(storage, `media/${imageFile.name}`);
+                await uploadBytes(imageRef, imageFile);
+                const imageUrl = await getDownloadURL(imageRef);
+
+                await addDoc(collection(db, "mediaPosts"), {
+                    title,
+                    date,
+                    link,
+                    content,
+                    image: imageUrl,
+                    createdAt: serverTimestamp()
+                });
+
+                document.getElementById("postMessage").innerText = "Post uploaded successfully!";
+                postForm.reset();
+            } catch (err) {
+                console.error("Post error:", err);
+                document.getElementById("postMessage").innerText = "Error uploading post.";
+            }
+        });
+    }
+}
+
+
+// Attach form listeners after DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+    setupLoginForm();
+    setupRegisterForm();
+    setupPostForm();
+    setupLoginToggle();
+    setupLogoutButton();
+
+    const forgotP = document.getElementById("forgotPassword");
+    if (forgotP) {
+        forgotP.addEventListener("click", handleForgotPassword);
+    }
+
     onAuthStateChanged(auth, (user) => {
         const justSignedIn = localStorage.getItem("justSignedIn");
 
@@ -117,3 +261,4 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+

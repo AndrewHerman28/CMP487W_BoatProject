@@ -258,5 +258,8 @@ document.addEventListener("DOMContentLoaded", () => {
     setupPostForm();
     setupLoginToggle();
     setupAuthLink();
+
+    const forgotP = document.getElementById("forgotPassword");
+    if (forgotP) forgotP.addEventListener("click", handleForgotPassword);
 });
 

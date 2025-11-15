@@ -1,3 +1,4 @@
+
 /* General reset */
 * {
   margin: 0;
@@ -355,3 +356,17 @@ section {
   background: #ccc;
 }
 
+#contact-group {
+  background-color: #c8deff;
+  border: 2px solid #002d72;
+  border-style: dashed;
+  border-radius: 10px;
+  height: auto;
+  width: max-content;
+  margin: 10px;
+  padding: 10px;
+}
+
+#adminContactButton {
+
+}

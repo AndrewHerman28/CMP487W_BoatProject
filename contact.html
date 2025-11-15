@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,9 +20,9 @@
             <li><a href="blog.html">Blog</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="media.html">Media</a></li>
-            <li><a href="login.html">Login</a></li>
+<!--            <li><a href="login.html">Login</a></li>-->
             <li><a href="admin.html">Upload</a></li>
-            <li><a href="#" id="logoutBtn">Logout</a></li>
+            <li><a href="#" id="authLink">Login</a></li>
         </ul>
     </nav>
     <!-- Logout Confirmation Modal -->
@@ -34,20 +35,102 @@
     </div>
 </header>
 
-<div>
-    <button type="submit" id="adminContactButton">Upload Contact</button>
-</div>
+<h2>Contact Information</h2>
+    <div id="contact-group">
+        <h3>Spring 2025 Student Blogs</h3>
 
+        <h4>Hercules Bakhtadze</h4>
+        <a href="https://sites.psu.edu/herculesboats/">https://sites.psu.edu/herculesboats/</a>
+
+        <h4>Ally Curran</h4>
+        <a href="https://sites.psu.edu/allybuildsaboat/">https://sites.psu.edu/allybuildsaboat/</a>
+
+        <h4>Thomas Eisenmann</h4>
+        <a href=" https://sites.psu.edu/eisenmannboatblog/"> https://sites.psu.edu/eisenmannboatblog/</a>
+
+        <h4>Theodore Fisher</h4>
+        <a href="https://sites.psu.edu/theodorebuildsapeapod/">https://sites.psu.edu/theodorebuildsapeapod/</a>
+
+        <h4>Tye Frankel</h4>
+        <a href="https://sites.psu.edu/herculesboats/">https://sites.psu.edu/herculesboats/</a>
+
+        <h4>Jordan Kolb</h4>
+        <a href="https://sites.psu.edu/jordanbuildsaboat/">https://sites.psu.edu/jordanbuildsaboat/</a>
+
+        <h4>David Uhlmann</h4>
+        <a href="https://sites.psu.edu/duhlmann/">https://sites.psu.edu/duhlmann/</a>
+
+    </div>
+    <div id="contact-group">
+        <h3>2021-2022 Student Blogs</h3>
+
+        <h4>Francis Bellocchio</h4>
+        <a href=" https://sites.psu.edu/francismakesaboat/"> https://sites.psu.edu/francismakesaboat/</a>
+
+        <h4>Sierrarose Biello</h4>
+        <a href="https://sites.psu.edu/sierrarosebielloboatbuilding/">https://sites.psu.edu/sierrarosebielloboatbuilding/</a>
+
+        <h4>Zoe Brouse</h4>
+        <a href="https://sites.psu.edu/zoeboatbuilding/">https://sites.psu.edu/zoeboatbuilding/</a>
+
+        <h4>Emily Chan</h4>
+        <a href="https://sites.psu.edu/emichanboatbuilding/">https://sites.psu.edu/emichanboatbuilding/</a>
+
+        <h4>Karley Feather</h4>
+        <a href="https://sites.psu.edu/kjfeatherboatbubilding/">https://sites.psu.edu/kjfeatherboatbubilding/</a>
+
+        <h4>Sam Feather</h4>
+        <a href="https://sites.psu.edu/samfeather/">https://sites.psu.edu/samfeather/</a>
+
+        <h4>Paul Kyriakos</h4>
+        <a href="https://sites.psu.edu/paulkyriakos/">https://sites.psu.edu/paulkyriakos/</a>
+
+        <h4>Alexa Pagan</h4>
+        <a href="https://sites.psu.edu/alexaboatbuilding/">https://sites.psu.edu/alexaboatbuilding/</a>
+
+    </div>
+    <div id="contact-group">
+        <h3>2021 Project Information</h3>
+        <h4>The Pennsylvania State University</h4>
+        <p>Schreyer Institute for Teaching Excellence 2021 Teaching Innovation Grant</p>
+        <a href="http://www.schreyerinstitute.psu.edu/">http://www.schreyerinstitute.psu.edu/</a>
+        
+        <h4>The Penn State Center, Philadelphia</h4>
+        <p>2021 Seeding Change Grant</p>
+        <a href="https://philadelphia.center.psu.edu/">https://philadelphia.center.psu.edu/</a>
+
+        <h4>The Pennsylvania State University – Abington College</h4>
+        <p>2021 Chancellor’s Grant funded by the Albert and Suzanne Lord Chancellor Endowment.</p>
+        
+        <h4>The Pennsylvania State University – Abington College</h4>
+        <p>2021 Faculty Development Grant</p>
+
+        <h4>The Pennsylvania State University – Humanities Institute</h4>
+        <a href="https://hi.psu.edu/">https://hi.psu.edu/</a>
+        
+        <h4>The Pennsylvania State University – Abington College</h4>
+        <p>Division of Arts and Humanities</p>
+
+        <h4>The Penn State Abington Art Gallery</h4>
+        <a href="https://sites.psu.edu/abingtonartgallery/">https://sites.psu.edu/abingtonartgallery/</a>
+    
+        <h4>The Pennsylvania State University – Abington College</h4>
+        <p>Student Initiated Fee Fund</p>
+    </div>
+    <div>
+        <input type="checkbox" id="adminContactButton" onchange=toggleContactForm()>Show/Hide Upload Contact Menu</button>
+    </div>
+    
 <main id="content-area">
     <div>
-    <form id="uploadContactForm">
+    <form id="contactForm">
         <h2>Upload Contact</h2>
         <input type="text" id="name" placeholder="Name" required/>
         <input type="file" placeholder="Add Image" accept="image/*">
         <input type="text" id="email" placeholder="Email" required/>
         <input type="text" id="paragraph" placeholder="Division" required/>
         <input type="text" id="paragraph" placeholder="Project" required/>
-        <button type="submit" id="signinBtn">Upload</button>
+        <button type="submit" id="uploadContact">Upload Contact Information</button>
     </form>
 </div>
 </main>

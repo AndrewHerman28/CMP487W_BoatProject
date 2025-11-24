@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog | PSU Abington Boat Project</title>
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="firebase.js"></script>
-    <script type="module" src="main.js"></script>
-
-
+    <script type="module" src="firebase.js" defer></script>
+    <script type="module" src="main.js" defer></script>
 </head>
 <body>
 <header>
@@ -19,29 +17,32 @@
             <li><a href="blog.html">Blog</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="media.html">Media</a></li>
-<!--            <li><a href="login.html">Login</a></li>-->
             <li><a href="admin.html">Upload</a></li>
             <li><a href="#" id="authLink">Login</a></li>
         </ul>
     </nav>
-    <!-- Logout Confirmation Modal -->
-    <div id="logoutModal" class="modal">
-        <div class="modal-content">
-            <p>Are you sure you want to sign out?</p>
-            <button id="confirmLogout">Yes, Sign Out</button>
-            <button id="cancelLogout">Cancel</button>
-        </div>
-    </div>
+    <span id="loginStatus"></span>
+
 </header>
+
 
 <main>
     <h2>Media Gallery</h2>
     <div class="media-grid" id="mediaContainer"></div>
 </main>
 
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal">
+    <div class="modal-content">
+        <p>Are you sure you want to sign out?</p>
+        <button id="confirmLogout">Yes, Sign Out</button>
+        <button id="cancelLogout">Cancel</button>
+    </div>
+</div>
 
 <footer>
     <p>&copy; 2025 Penn State Abington | Boat Project</p>
 </footer>
 </body>
+
 </html>

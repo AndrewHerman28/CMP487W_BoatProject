@@ -6,10 +6,10 @@ import {
     watchAuthState,
     createPost,
     getAllPosts,
+    getAllContacts,
     updatePost,
     deletePost,
-    uploadImage,
-    displayContactInfo
+    uploadImage
 } from "./firebase.js";
 
 // ================ UI Toggles, Event Listeners, DOM ================
@@ -145,13 +145,6 @@ function setupRegisterForm() {
     }
 }
 
-function displayContacts() {
-    const contact = document.getElementById("contact-info");
-    if (contact) {
-        contact.addEventListener('DOMContentLoaded', displayContactInfo);
-    }
-}
-
 function setupPostForm() {
     const postForm = document.getElementById("postForm");
     if (!postForm) return;
@@ -235,12 +228,6 @@ async function handleForgotPassword(event) {
     }
 }
 
-function loadConact() {
-    displayContactInfo();
-}
-
-loadConact();
-
 // ================ Render/Load Media ================
 function renderPost(postId, postData, user) {
     const container = document.getElementById("mediaContainer");
@@ -278,6 +265,43 @@ async function loadPosts(user) {
     }
 }
 
+
+function renderContact(contactId, contactData, user) {
+  const container = document.getElementById("contactContainer");
+  const item = document.createElement("div");
+  item.classList.add("contact-item");
+  item.dataset.id = contactId;
+
+  item.innerHTML = `
+    <h3 class="contact-name">${contactData.name}</h3>
+    <p><a href="${contactData.link}" target="_blank">More Info</a></p>
+    <div class="contact-actions hidden" data-auth="required">
+      <button class="edit-btn">Edit</button>
+      <button class="delete-btn">Delete</button>
+    </div>
+  `;
+
+  container.appendChild(item);
+  toggleAuthElements(user);
+}
+
+
+async function loadContacts(user) {
+    try {
+        const querySnapshot = await getAllContacts();
+        console.log("Contacts found:", querySnapshot.size);
+        querySnapshot.forEach((doc) => {
+            console.log("Contact doc:", doc.id, doc.data());
+            renderContact(doc.id, doc.data(), user);
+        });
+    } catch (err) {
+        console.error("Error loading contacts:", err);
+        const container = document.getElementById("contactContainer");
+        if (container) container.innerHTML = "<p>Failed to load contacts.</p>";
+    }
+}
+
+
 // Single DOMContentLoaded block
 document.addEventListener("DOMContentLoaded", () => {
     setupLoginForm();
@@ -286,17 +310,23 @@ document.addEventListener("DOMContentLoaded", () => {
     setupLoginToggle();
     setupLogoutButton();
     initAuthUI();
-    displayContacts();
 
     const forgotP = document.getElementById("forgotPassword");
     if (forgotP) forgotP.addEventListener("click", handleForgotPassword);
 
     const path = window.location.pathname;
+    // Media page
     if (path.includes("media.html")) {
-        loadPosts();
+        watchAuthState((user) => {
+            loadPosts(user);
+        });
     }
+
+    // Contact page
     if (path.includes("contact.html")) {
-        displayContactInfo();
+        watchAuthState((user) => {
+            loadContacts(user);
+        });
     }
 
     const btn = document.getElementById("currentProjectBtn");
@@ -309,20 +339,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 //  Single delegated click handler
 document.addEventListener("DOMContentLoaded", () => {
-
-    // Reference: Google search AI Overview
-    // Toggling button for upload contact form in admin page
-    document.getElementById("adminContactButton").addEventListener('click', toggleContactForm);
-    function toggleContactForm() {
-        var form = document.getElementById("contactForm");
-        if (form.style.display == 'none') {
-            form.style.display = 'flex';
-        }
-        else {
-            form.style.display = 'none';
-        }
-    }
-
     const container = document.getElementById("mediaContainer");
     if (!container) return;
 

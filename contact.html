@@ -1,15 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog | PSU Abington Boat Project</title>
+    <title>Contacts | PSU Abington Boat Project</title>
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="firebase.js"></script>
-    <script type="module" src="main.js"></script>
-
-
+    <script type="module" src="firebase.js" defer></script>
+    <script type="module" src="main.js" defer></script>
 </head>
 <body>
 <header>
@@ -20,7 +17,6 @@
             <li><a href="blog.html">Blog</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="media.html">Media</a></li>
-<!--            <li><a href="login.html">Login</a></li>-->
             <li><a href="admin.html">Upload</a></li>
             <li><a href="#" id="authLink">Login</a></li>
         </ul>
@@ -33,14 +29,12 @@
             <button id="cancelLogout">Cancel</button>
         </div>
     </div>
+    <span id="loginStatus"></span>
 </header>
 
 <main>
-<h2>Contact Information</h2>
-    <div id="contact-info">
-        <p>Display...</p>
-    </div>
-
+    <h2>Project Contacts</h2>
+    <div class="contact-grid" id="contactContainer"></div>
 </main>
 
 <footer>

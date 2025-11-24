@@ -37,7 +37,7 @@ const firebaseConfig = {
 // --- Init ---
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-const db = getFirestore(app);
+export const db = getFirestore(app);
 export const storage = getStorage(app);
 
 // --- Auth Helpers ---
@@ -81,94 +81,13 @@ export async function deletePost(postId) {
     return await deleteDoc(doc(db, "mediaPosts", postId));
 }
 
+export async function getAllContacts() {
+    return await getDocs(collection(db, "contactInfo2025"));
+}
+
 // --- Storage Helpers ---
 export async function uploadImage(file) {
     const imageRef = ref(storage, `media/${file.name}`);
     await uploadBytes(imageRef, file);
     return await getDownloadURL(imageRef);
-}
-
-// Display Contact Information
-// Bug: doesn't display on contact.html
-export async function displayContactInfo() {
-    const dataArea = document.getElementById("contact-info");
-
-    const contacts2021_2022 = await getDocs(collection(db, "contactInfo2021_2022"));
-    const contacts2021_Project = await getDocs(collection(db, "contactInfo2021_Project"));
-    const contacts2025 = await getDocs(collection(db, "contactInfo2025"));
-    let display = '';
-
-    contacts2025.forEach((doc) => {
-        const data = doc.data();
-        if (data.name && data.link) {
-            display += `
-                <div>
-                    <p>${data.name}<p>
-                    <p>${data.link}</p>
-                    <p>-----</p>
-                </div>`;
-        }
-        else if (!data.link) {
-            display += `
-            <div>
-                <p>${data.name}<p>
-                <p>-----</p>
-            </div>`;
-        }
-        });
-
-    contacts2021_2022.forEach((doc) => {
-        const data = doc.data();
-        if (data.name && data.link) {
-            display += `
-                <div>
-                    <p>${data.name}<p>
-                    <p>${data.link}</p>
-                    <p>-----</p>
-                </div>`;
-        }
-        else if (!data.link) {
-            display += `
-            <div>
-                <p>${data.name}<p>
-                <p>-----</p>
-            </div>`;
-        }
-        });
-
-    contacts2021_Project.forEach((doc) => {
-        const data = doc.data();
-        if (data.name && data.link && data.description) {
-            display += `
-                <div>
-                    <p>${data.name}<p>
-                    <p>${data.link}</p>
-                    <p>${data.description}</p>
-                    <p>-----</p>
-                </div>`;
-        }
-        else if (!data.link && !data.description) {
-            display += `
-            <div>
-                <p>${data.name}<p>
-            </div>`;
-        }
-        else if (!data.link && data.description) {
-            display += `
-            <div>
-                <p>${data.name}<p>
-                <p>${data.description}<p>
-            </div>`;
-        }
-        else if (data.link && !data.description) {
-            display += `
-            <div>
-                <p>${data.name}<p>
-                <p>${data.link}<p>
-            </div>`;
-        }
-        });
-
-
-    dataArea.innerHTML = display;
 }

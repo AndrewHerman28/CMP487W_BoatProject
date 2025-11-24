@@ -46,30 +46,20 @@
             </form>
 
             <div>
-                <input type="checkbox" id="adminContactButton" onchange=toggleContactForm()>Show/Hide Upload Contact Menu</button>
+                <input type="checkbox" id="adminContactButton" onchange=toggleContactForm()>Show/Hide Upload Contact
+                Menu</button>
             </div>
 
             <div>
                 <form id="contactForm">
                     <h2>Upload Contact</h2>
-                    <input type="text" id="name" placeholder="Name" required/>
-                    <input type="text" id="email" placeholder="Email (optional)"/>
-                    <input type="text" id="paragraph" placeholder="Division"/>
-                    <input type="text" id="paragraph" placeholder="Project (link)"/>
+                    <input type="text" id="contact_name" placeholder="Name" required/>
+                    <input type="text" id="contact_email" placeholder="Email (optional)"/>
+                    <input type="text" id="contact_division" placeholder="Division"/>
+                    <input type="text" id="contact_link" placeholder="Project (link)"/>
                     <button type="submit" id="uploadContact">Upload Contact Information</button>
                 </form>
             </div>
-
-            <!--            <form id="loginForm">-->
-            <!--                <h2>Upload To Blog</h2>-->
-            <!--                <input type="text" id="header" placeholder="header" required/>-->
-            <!--                <input type="date" id="date" placeholder="date" required/>-->
-            <!--                <input type="file" accept="image/*">-->
-            <!--                <input type="text" id="link" placeholder="link" required/>-->
-            <!--                <input type="text" id="paragraph" placeholder="paragraph" required/>-->
-
-            <!--                <button type="submit" id="uploadContact">Upload Contact</button>-->
-            <!--            </form>-->
         </div>
     </div>
 </main>

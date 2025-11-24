@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | PSU Abington Boat Project</title>
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="firebase.js"></script>
-    <script type="module" src="main.js"></script>
-
+    <script type="module" src="firebase.js" defer></script>
+    <script type="module" src="main.js" defer></script>
 </head>
 
 <header>
@@ -18,9 +17,8 @@
             <li><a href="blog.html">Blog</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="media.html">Media</a></li>
-            <li><a href="login.html">Login</a></li>
             <li><a href="admin.html">Upload</a></li>
-            <li><a href="#" id="logoutBtn">Logout</a></li>
+            <li><a href="#" id="authLink">Login</a></li>
         </ul>
     </nav>
     <!-- Logout Confirmation Modal -->
@@ -36,16 +34,42 @@
 <main id="content-area">
     <div class="auth-wrapper">
         <div class="login-container">
-            <form id="loginForm">
-                <h2>Upload To Blog</h2>
-                <input type="text" id="header" placeholder="header" required/>
-                <input type="date" id="date" placeholder="date" required/>
-                <input type="file" accept="image/*">
-                <input type="text" id="link" placeholder="link" required/>
-                <input type="text" id="paragraph" placeholder="paragraph" required/>
-
-                <button type="submit" id="uploadContact">Upload Contact</button>
+            <form id="postForm">
+                <h2>Upload Media</h2>
+                <input type="text" id="post_header" placeholder="Title" required>
+                <input type="text" id="post_date" placeholder="Date" required>
+                <input type="url" id="post_link" placeholder="Link" required>
+                <textarea id="post_content" placeholder="Content" required></textarea>
+                <input type="file" id="post_img" accept="image/*" required>
+                <button type="submit">Upload Post</button>
+                <p id="postMessage"></p>
             </form>
+
+            <div>
+                <input type="checkbox" id="adminContactButton" onchange=toggleContactForm()>Show/Hide Upload Contact Menu</button>
+            </div>
+
+            <div>
+                <form id="contactForm">
+                    <h2>Upload Contact</h2>
+                    <input type="text" id="name" placeholder="Name" required/>
+                    <input type="text" id="email" placeholder="Email (optional)"/>
+                    <input type="text" id="paragraph" placeholder="Division"/>
+                    <input type="text" id="paragraph" placeholder="Project (link)"/>
+                    <button type="submit" id="uploadContact">Upload Contact Information</button>
+                </form>
+            </div>
+
+            <!--            <form id="loginForm">-->
+            <!--                <h2>Upload To Blog</h2>-->
+            <!--                <input type="text" id="header" placeholder="header" required/>-->
+            <!--                <input type="date" id="date" placeholder="date" required/>-->
+            <!--                <input type="file" accept="image/*">-->
+            <!--                <input type="text" id="link" placeholder="link" required/>-->
+            <!--                <input type="text" id="paragraph" placeholder="paragraph" required/>-->
+
+            <!--                <button type="submit" id="uploadContact">Upload Contact</button>-->
+            <!--            </form>-->
         </div>
     </div>
 </main>

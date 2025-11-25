@@ -1,4 +1,3 @@
-
 /* General reset */
 * {
   margin: 0;
@@ -356,17 +355,28 @@ section {
   background: #ccc;
 }
 
-#contact-group {
-  background-color: #c8deff;
-  border: 2px solid #002d72;
-  border-style: dashed;
-  border-radius: 10px;
-  height: auto;
-  width: max-content;
-  margin: 10px;
+.hidden { display: none !important; }
+
+.contact-group {
   padding: 10px;
+  margin: 10px;
+  border: 2px solid #002d72;
+  background-color: #d6d6d6;
+  width: max-content;
+  border-radius: 10px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
 }
 
-#adminContactButton {
+.contact-group:hover {
+  background-color: #bfe9f9;
 
+}
+
+.contact-headings {
+  margin: 0.5em;
+  padding: 0.5em;
+  border: 1px solid;
+  width: max-content;
+  border-radius: 10px;
 }

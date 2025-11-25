@@ -6,7 +6,9 @@ import {
     watchAuthState,
     createPost,
     getAllPosts,
-    getAllContacts,
+    getAllContacts25,
+    getAllContacts21,
+    getAllContacts21Pro,
     updatePost,
     deletePost,
     uploadImage
@@ -265,38 +267,114 @@ async function loadPosts(user) {
     }
 }
 
+// ########### Rendering Contacts for the 3 contact groups ###########
 
-function renderContact(contactId, contactData, user) {
-  const container = document.getElementById("contactContainer");
-  const item = document.createElement("div");
-  item.classList.add("contact-item");
-  item.dataset.id = contactId;
-
-  item.innerHTML = `
-    <h3 class="contact-name">${contactData.name}</h3>
-    <p><a href="${contactData.link}" target="_blank">More Info</a></p>
+function renderContact25(contactId, contactData, user) {
+    const container = document.getElementById("contactContainer25");
+    const item = document.createElement("div");
+    item.classList.add("contact-item");
+    item.dataset.id = contactId;
+    
+    item.innerHTML = `
+    <h4 class="contact-name">${contactData.name}</h4>
+    <p>${contactData.description}</p>
+    <p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>
     <div class="contact-actions hidden" data-auth="required">
-      <button class="edit-btn">Edit</button>
-      <button class="delete-btn">Delete</button>
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
     </div>
-  `;
+    `;
 
-  container.appendChild(item);
-  toggleAuthElements(user);
+    container.appendChild(item);
+    toggleAuthElements(user);
 }
 
+function renderContact21(contactId, contactData, user) {
+    const container = document.getElementById("contactContainer21");
+    const item = document.createElement("div");
+    item.classList.add("contact-item");
+    item.dataset.id = contactId;
+    
+    item.innerHTML = `
+    <h4 class="contact-name">${contactData.name}</h4>
+    <p>${contactData.description}</p>
+    <p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>
+    <div class="contact-actions hidden" data-auth="required">
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
+    </div>
+    `;
 
-async function loadContacts(user) {
+    container.appendChild(item);
+    toggleAuthElements(user);
+}
+
+function renderContact21Pro(contactId, contactData, user) {
+    const container = document.getElementById("contactContainer21Pro");
+    const item = document.createElement("div");
+    item.classList.add("contact-item");
+    item.dataset.id = contactId;
+    
+    item.innerHTML = `
+    <h4 class="contact-name">${contactData.name}</h4>
+    <p>${contactData.description}</p>
+    <p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>
+    <div class="contact-actions hidden" data-auth="required">
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
+    </div>
+    `;
+
+    container.appendChild(item);
+    toggleAuthElements(user);
+}
+
+// ########### Loading Contacts for the 3 contact groups ###########
+
+async function loadContacts25(user) {
     try {
-        const querySnapshot = await getAllContacts();
-        console.log("Contacts found:", querySnapshot.size);
-        querySnapshot.forEach((doc) => {
+        const querySnapshot25 = await getAllContacts25();
+        
+        console.log("Contacts found:", querySnapshot25.size);
+        querySnapshot25.forEach((doc) => {
             console.log("Contact doc:", doc.id, doc.data());
-            renderContact(doc.id, doc.data(), user);
+            renderContact25(doc.id, doc.data(), user);
         });
     } catch (err) {
         console.error("Error loading contacts:", err);
-        const container = document.getElementById("contactContainer");
+        const container = document.getElementById("contactContainer25");
+        if (container) container.innerHTML = "<p>Failed to load contacts.</p>";
+    }
+}
+
+async function loadContacts21(user) {
+    try {
+        const querySnapshot21 = await getAllContacts21();
+        
+        console.log("Contacts found:", querySnapshot21.size);
+        querySnapshot21.forEach((doc) => {
+            console.log("Contact doc:", doc.id, doc.data());
+            renderContact21(doc.id, doc.data(), user);
+        });
+    } catch (err) {
+        console.error("Error loading contacts:", err);
+        const container = document.getElementById("contactContainer21");
+        if (container) container.innerHTML = "<p>Failed to load contacts.</p>";
+    }
+}
+
+async function loadContacts21Pro(user) {
+    try {
+        const querySnapshot21Pro = await getAllContacts21Pro();
+        
+        console.log("Contacts found:", querySnapshot21Pro.size);
+        querySnapshot21Pro.forEach((doc) => {
+            console.log("Contact doc:", doc.id, doc.data());
+            renderContact21Pro(doc.id, doc.data(), user);
+        });
+    } catch (err) {
+        console.error("Error loading contacts:", err);
+        const container = document.getElementById("contactContainer21Pro");
         if (container) container.innerHTML = "<p>Failed to load contacts.</p>";
     }
 }
@@ -325,7 +403,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Contact page
     if (path.includes("contact.html")) {
         watchAuthState((user) => {
-            loadContacts(user);
+            loadContacts25(user);
+            loadContacts21(user);
+            loadContacts21Pro(user);
         });
     }
 

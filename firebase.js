@@ -1,3 +1,4 @@
+
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 import {
     getAuth,
@@ -81,8 +82,16 @@ export async function deletePost(postId) {
     return await deleteDoc(doc(db, "mediaPosts", postId));
 }
 
-export async function getAllContacts() {
+export async function getAllContacts25() {
     return await getDocs(collection(db, "contactInfo2025"));
+}
+
+export async function getAllContacts21() {
+    return await getDocs(collection(db, "contactInfo2021_2022"));
+}
+
+export async function getAllContacts21Pro() {
+    return await getDocs(collection(db, "contactInfo2021_Project"));
 }
 
 // --- Storage Helpers ---

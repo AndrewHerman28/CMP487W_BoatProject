@@ -1,4 +1,3 @@
-
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 import {
     getAuth,
@@ -6,7 +5,6 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     sendPasswordResetEmail,
-    validatePassword, // Could be used during the checkAdminLogin function, unsure how yet
     signOut
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 import {
@@ -17,7 +15,10 @@ import {
     serverTimestamp,
     updateDoc,
     deleteDoc,
-    doc
+    doc,
+    query,
+    where,
+    orderBy
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 import {
     getStorage,
@@ -41,8 +42,9 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+export const ADMIN_EMAIL = "newuser1@gmail.com";
 
-// --- Auth Helpers ---
+// =================== Auth Helpers ===================
 export async function signInUser(email, password) {
     return await signInWithEmailAndPassword(auth, email, password);
 }
@@ -63,21 +65,28 @@ export function watchAuthState(callback) {
     return onAuthStateChanged(auth, callback);
 }
 
-// Ref: https://firebase.google.com/docs/auth/web/password-auth#web_3
-export async function checkAdminLogin(auth, email, pass) {
-    return await signInWithEmailAndPassword(auth, email, pass);
+// Optional admin login helper
+export async function checkAdminLogin(authInstance, email, pass) {
+    return await signInWithEmailAndPassword(authInstance, email, pass);
 }
 
-// --- Firestore Helpers ---
+// =================== Firestore Helpers ===================
 export async function createPost(data) {
     return await addDoc(collection(db, "mediaPosts"), {
         ...data,
+        pinned: data.pinned ?? false,
         createdAt: serverTimestamp()
     });
 }
 
+
 export async function getAllPosts() {
-    return await getDocs(collection(db, "mediaPosts"));
+    const q = query(
+        collection(db, "mediaPosts"),
+        orderBy("pinned", "desc"),
+        orderBy("date", "desc")
+    );
+    return await getDocs(q);
 }
 
 export async function updatePost(postId, updates) {
@@ -87,6 +96,14 @@ export async function updatePost(postId, updates) {
 export async function deletePost(postId) {
     return await deleteDoc(doc(db, "mediaPosts", postId));
 }
+
+export async function togglePin(postId, currentlyPinned) {
+    const postRef = doc(db, "mediaPosts", postId);
+    const newPinned = !currentlyPinned;
+    await updateDoc(postRef, { pinned: newPinned });
+    return newPinned;
+}
+
 
 export async function getAllContacts25() {
     return await getDocs(collection(db, "contactInfo2025"));
@@ -100,7 +117,21 @@ export async function getAllContacts21Pro() {
     return await getDocs(collection(db, "contactInfo2021_Project"));
 }
 
-// --- Storage Helpers ---
+export async function addContact(data) {
+    return await addDoc(collection(db, "contactInfo2025"), data);
+}
+
+export async function updateContact(contactId, data) {
+    const contactRef = doc(db, "contactInfo2025", contactId);
+    return await updateDoc(contactRef, data);
+}
+
+export async function deleteContact(contactId) {
+    const contactRef = doc(db, "contactInfo2025", contactId);
+    return await deleteDoc(contactRef);
+}
+
+// =================== Storage Helpers ===================
 export async function uploadImage(file) {
     const imageRef = ref(storage, `media/${file.name}`);
     await uploadBytes(imageRef, file);

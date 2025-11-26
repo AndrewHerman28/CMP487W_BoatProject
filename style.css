@@ -380,3 +380,11 @@ section {
   width: max-content;
   border-radius: 10px;
 }
+
+#adminInterface {
+  display: none;
+}
+
+.contact-actions hidden {
+  display: none;
+}

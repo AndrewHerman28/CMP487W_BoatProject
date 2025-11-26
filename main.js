@@ -390,6 +390,11 @@ async function showAdminFeatures() {
         if (checkAdminLogin(auth, email, pass)) {
             console.log("Admin Signed In");
             // Add more here, such as displaying the buttons 
+            contactEdit = document.getElementById("contact-actions hidden");
+            adminInterface = document.getElementById("adminInterface");
+
+            adminInterface.style.display = flex;
+            contactEdit.style.display = flex;
         }
     }
 

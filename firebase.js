@@ -104,6 +104,41 @@ export async function togglePin(postId, currentlyPinned) {
     return newPinned;
 }
 
+// Current blog posts
+
+export async function createBlogPost(data) {
+    return await addDoc(collection(db, "projectBlog2025"), {
+        ...data,
+        pinned: data.pinned ?? false,
+        createdAt: serverTimestamp()
+    });
+}
+
+
+export async function getAllBlogPosts() {
+    const q = query(
+        collection(db, "projectBlog2025"),
+        orderBy("date", "desc")
+    );
+    return await getDocs(q);
+}
+
+export async function updateBlogPost(postId, updates) {
+    return await updateDoc(doc(db, "projectBlog2025", postId), updates);
+}
+
+export async function deleteBlogPost(postId) {
+    return await deleteDoc(doc(db, "projectBlog2025", postId));
+}
+
+export async function toggleBlogPin(postId, currentlyPinned) {
+    const postRef = doc(db, "projectBlog2025", postId);
+    const newPinned = !currentlyPinned;
+    await updateDoc(postRef, { pinned: newPinned });
+    return newPinned;
+}
+
+// Contact Functions
 
 export async function getAllContacts25() {
     return await getDocs(collection(db, "contactInfo2025"));

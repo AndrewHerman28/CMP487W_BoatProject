@@ -18,7 +18,8 @@ import {
     uploadImage,
     checkAdminLogin,
     auth,
-    ADMIN_EMAIL
+    ADMIN_EMAIL,
+    getAllBlogPosts
 } from "./firebase.js";
 
 // ================ UI Toggles, Event Listeners, DOM ================
@@ -291,6 +292,75 @@ async function loadPosts(user) {
     }
 }
 
+// ================ Render/Load Current Blog Posts ================
+
+function renderBlogPost(postId, postData, user) {
+    const container = document.getElementById("blogContainer");
+    const item = document.createElement("div");
+    item.classList.add("media-item");
+    item.dataset.id = postId;
+
+    if (postData.pinned) item.dataset.pinned = "true";
+
+    item.innerHTML = `
+      <div class="media-actions hidden" data-auth="required">
+        <button class="pin-btn">📌</button>
+        <button class="edit-btn">✏️</button>
+        <button class="delete-btn">🗑️</button>
+    </div>
+
+
+      <h3 class="media-title">${postData.title}</h3>
+      <p class="media-date">${postData.date}</p>
+      <a href="${postData.link}" target="_blank">
+        <img src="${postData.images[0]}" alt="${postData.title}">
+        <img src="${postData.images[1]}" alt="${postData.title}">
+        <img src="${postData.images[2]}" alt="${postData.title}">
+        <img src="${postData.images[3]}" alt="${postData.title}">
+        <img src="${postData.images[4]}" alt="${postData.title}">
+        <img src="${postData.images[5]}" alt="${postData.title}">
+        <img src="${postData.images[6]}" alt="${postData.title}">
+        <img src="${postData.images[7]}" alt="${postData.title}">
+      </a>
+      <p class="media-description">${postData.description}</p>
+    `;
+
+    container.appendChild(item);
+
+    const pinBtn = item.querySelector(".pin-btn");
+    pinBtn.addEventListener("click", async () => {
+        const currentlyPinned = item.dataset.pinned === "true";
+        const newPinned = await togglePin(postId, currentlyPinned);
+
+        postData.pinned = newPinned;
+        item.dataset.pinned = newPinned ? "true" : "false";
+
+        // Re-sort DOM
+        container.removeChild(item);
+        if (newPinned) {
+            container.insertBefore(item, container.firstChild);
+        } else {
+            container.appendChild(item);
+        }
+
+        showToast(`Post "${postData.title}" ${newPinned ? "pinned" : "unpinned"}!`);
+    });
+
+}
+
+async function loadBlogPosts(user) {
+    try {
+        const snapshot = await getAllBlogPosts();
+        snapshot.forEach((doc) => renderBlogPost(doc.id, doc.data(), user));
+        toggleAuthElements(user);
+    } catch (err) {
+        console.error("Error loading posts:", err);
+        const container = document.getElementById("blogContainer");
+        if (container) container.innerHTML = "<p>Failed to load posts.</p>";
+    }
+}
+
+
 // ================ Render/Load Contacts ================
 // ================ Generic Contact Rendering/Loading with Headings ================
 function renderContact(contactId, contactData, user, section) {
@@ -383,6 +453,8 @@ document.addEventListener("DOMContentLoaded", () => {
             loadContacts(user, getAllContacts21Pro, "Project Contacts 2021");
         });
     }
+    if (path.includes("blog.html")) {
+        watchAuthState((user) => loadBlogPosts(user))};
 
     const btn = document.getElementById("currentProjectBtn");
     if (btn) {

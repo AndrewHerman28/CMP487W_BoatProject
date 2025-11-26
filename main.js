@@ -11,7 +11,8 @@ import {
     getAllContacts21Pro,
     updatePost,
     deletePost,
-    uploadImage
+    uploadImage,
+    checkAdminLogin // New from firebase.js and used in showAdminFeatures 
 } from "./firebase.js";
 
 // ================ UI Toggles, Event Listeners, DOM ================
@@ -379,6 +380,21 @@ async function loadContacts21Pro(user) {
     }
 }
 
+// Ref: https://firebase.google.com/docs/auth/web/password-auth#web_3
+async function showAdminFeatures() {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+    const auth = getAuth();
+
+    if (email == CLIENT_EMAIL) {
+        if (checkAdminLogin(auth, email, pass)) {
+            console.log("Admin Signed In");
+            // Add more here, such as displaying the buttons 
+        }
+    }
+
+}
+
 
 // Single DOMContentLoaded block
 document.addEventListener("DOMContentLoaded", () => {
@@ -388,6 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupLoginToggle();
     setupLogoutButton();
     initAuthUI();
+    showAdminFeatures();
 
     const forgotP = document.getElementById("forgotPassword");
     if (forgotP) forgotP.addEventListener("click", handleForgotPassword);

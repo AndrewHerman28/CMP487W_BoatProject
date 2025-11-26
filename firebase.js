@@ -6,6 +6,7 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     sendPasswordResetEmail,
+    validatePassword, // Could be used during the checkAdminLogin function, unsure how yet
     signOut
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 import {
@@ -60,6 +61,11 @@ export async function logoutUser() {
 
 export function watchAuthState(callback) {
     return onAuthStateChanged(auth, callback);
+}
+
+// Ref: https://firebase.google.com/docs/auth/web/password-auth#web_3
+export async function checkAdminLogin(auth, email, pass) {
+    return await signInWithEmailAndPassword(auth, email, pass);
 }
 
 // --- Firestore Helpers ---

@@ -9,10 +9,16 @@ import {
     getAllContacts25,
     getAllContacts21,
     getAllContacts21Pro,
+    addContact,
+    updateContact,
+    deleteContact,
+    togglePin,
     updatePost,
     deletePost,
     uploadImage,
-    checkAdminLogin // New from firebase.js and used in showAdminFeatures 
+    checkAdminLogin,
+    auth,
+    ADMIN_EMAIL
 } from "./firebase.js";
 
 // ================ UI Toggles, Event Listeners, DOM ================
@@ -50,42 +56,34 @@ function setupLogoutButton() {
     const cancelLogout = document.getElementById("cancelLogout");
 
     if (logoutBtn && logoutModal && confirmLogout && cancelLogout) {
-        // Show modal when logout button is clicked
         logoutBtn.addEventListener("click", (e) => {
             e.preventDefault();
             logoutModal.style.display = "block";
         });
 
-        // Confirm logout
         confirmLogout.addEventListener("click", async () => {
             try {
                 await logoutUser();
                 console.log("User signed out");
                 logoutModal.style.display = "none";
-                window.location.href = "login.html"; // optional redirect
+                window.location.href = "login.html";
             } catch (error) {
                 console.error("Sign-out error:", error);
             }
         });
 
-        // Cancel logout
         cancelLogout.addEventListener("click", () => {
             logoutModal.style.display = "none";
         });
     }
 }
 
-const CLIENT_EMAIL = "newuser1@gmail.com";
-
 function initAuthUI() {
     const authLink = document.getElementById("authLink");
 
     watchAuthState(async (user) => {
         if (user) {
-            // Status text
             setText("loginStatus", "✅ Logged In", "green");
-
-            // Auth link
             if (authLink) {
                 authLink.innerText = `${user.email} (Logout)`;
                 authLink.style.color = "green";
@@ -99,10 +97,7 @@ function initAuthUI() {
                 };
             }
         } else {
-            // Status text
             setText("loginStatus", "❌ Not Logged In", "red");
-
-            // Auth link
             if (authLink) {
                 authLink.innerText = "Login";
                 authLink.style.color = "white";
@@ -112,8 +107,6 @@ function initAuthUI() {
                 };
             }
         }
-
-        // Toggle client-only features
         toggleAuthElements(user);
     });
 }
@@ -126,26 +119,36 @@ function setText(id, text, color) {
 }
 
 function toggleAuthElements(user) {
-    const isClient = user && user.email === CLIENT_EMAIL;
+    const isAdmin = user && user.email === ADMIN_EMAIL;
+
+    // Admin-only features
+    document.querySelectorAll('[data-auth="admin"]').forEach(el => {
+        el.classList.toggle("hidden", !isAdmin);
+    });
+
+    // Client-only features (edit/delete/pin buttons)
     document.querySelectorAll('[data-auth="required"]').forEach(el => {
-        el.classList.toggle("hidden", !isClient);
+        el.classList.toggle("hidden", !isAdmin);
     });
 }
 
+function showToast(message) {
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+}
 
 // ================ Form Handling ================
 function setupLoginForm() {
     const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-        loginForm.addEventListener("submit", handleSignIn);
-    }
+    if (loginForm) loginForm.addEventListener("submit", handleSignIn);
 }
 
 function setupRegisterForm() {
     const registerForm = document.getElementById("registerForm");
-    if (registerForm) {
-        registerForm.addEventListener("submit", handleRegister);
-    }
+    if (registerForm) registerForm.addEventListener("submit", handleRegister);
 }
 
 function setupPostForm() {
@@ -154,7 +157,6 @@ function setupPostForm() {
 
     postForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         const title = document.getElementById("post_header").value;
         const date = document.getElementById("post_date").value;
         const link = document.getElementById("post_link").value;
@@ -167,9 +169,8 @@ function setupPostForm() {
         }
 
         try {
-            const imageUrl = await uploadImage(imageFile); // wrapper in firebase.js
+            const imageUrl = await uploadImage(imageFile);
             await createPost({title, date, link, content, image: imageUrl});
-
             document.getElementById("postMessage").innerText = "Post uploaded successfully!";
             postForm.reset();
         } catch (err) {
@@ -181,7 +182,6 @@ function setupPostForm() {
 
 async function handleSignIn(event) {
     event.preventDefault();
-
     const email = document.getElementById("email").value;
     const pass = document.getElementById("password").value;
 
@@ -224,7 +224,7 @@ async function handleForgotPassword(event) {
         return;
     }
     try {
-        await resetPassword(email); // ✅ use wrapper correctly
+        await resetPassword(email);
         alert("Password reset email sent! Check your inbox.");
     } catch (error) {
         alert("Error: " + error.message);
@@ -238,29 +238,52 @@ function renderPost(postId, postData, user) {
     item.classList.add("media-item");
     item.dataset.id = postId;
 
+    if (postData.pinned) item.dataset.pinned = "true";
+
     item.innerHTML = `
-    <h3 class="media-title">${postData.title}</h3>
-    <p>${postData.date}</p>
-    <a href="${postData.link}" target="_blank">
-      <img src="${postData.image}" alt="${postData.title}">
-    </a>
-    <p>${postData.description}</p>
-    <div class="media-actions hidden" data-auth="required">
-      <button class="pin-btn">Pin</button>
-      <button class="edit-btn">Edit</button>
-      <button class="delete-btn">Delete</button>
+      <div class="media-actions hidden" data-auth="required">
+        <button class="pin-btn">📌</button>
+        <button class="edit-btn">✏️</button>
+        <button class="delete-btn">🗑️</button>
     </div>
-  `;
+
+
+      <h3 class="media-title">${postData.title}</h3>
+      <p class="media-date">${postData.date}</p>
+      <a href="${postData.link}" target="_blank">
+        <img src="${postData.image}" alt="${postData.title}">
+      </a>
+      <p class="media-description">${postData.description}</p>
+    `;
+
     container.appendChild(item);
-    toggleAuthElements(user);
+
+    const pinBtn = item.querySelector(".pin-btn");
+    pinBtn.addEventListener("click", async () => {
+        const currentlyPinned = item.dataset.pinned === "true";
+        const newPinned = await togglePin(postId, currentlyPinned);
+
+        postData.pinned = newPinned;
+        item.dataset.pinned = newPinned ? "true" : "false";
+
+        // Re-sort DOM
+        container.removeChild(item);
+        if (newPinned) {
+            container.insertBefore(item, container.firstChild);
+        } else {
+            container.appendChild(item);
+        }
+
+        showToast(`Post "${postData.title}" ${newPinned ? "pinned" : "unpinned"}!`);
+    });
+
 }
 
 async function loadPosts(user) {
     try {
-        const querySnapshot = await getAllPosts();
-        querySnapshot.forEach((doc) => {
-            renderPost(doc.id, doc.data(), user);
-        });
+        const snapshot = await getAllPosts();
+        snapshot.forEach((doc) => renderPost(doc.id, doc.data(), user));
+        toggleAuthElements(user);
     } catch (err) {
         console.error("Error loading posts:", err);
         const container = document.getElementById("mediaContainer");
@@ -268,140 +291,75 @@ async function loadPosts(user) {
     }
 }
 
-// ########### Rendering Contacts for the 3 contact groups ###########
-
-function renderContact25(contactId, contactData, user) {
-    const container = document.getElementById("contactContainer25");
+// ================ Render/Load Contacts ================
+// ================ Generic Contact Rendering/Loading with Headings ================
+function renderContact(contactId, contactData, user, section) {
     const item = document.createElement("div");
     item.classList.add("contact-item");
     item.dataset.id = contactId;
-    
+
     item.innerHTML = `
-    <h4 class="contact-name">${contactData.name}</h4>
-    <p>${contactData.description}</p>
-    <p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>
-    <div class="contact-actions hidden" data-auth="required">
+      <h4 class="contact-name">${contactData.name}</h4>
+      <p>${contactData.description ?? ""}</p>
+      <p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>
+      <div class="contact-actions hidden" data-auth="required">
         <button class="edit-btn">Edit</button>
         <button class="delete-btn">Delete</button>
-    </div>
+      </div>
     `;
 
-    container.appendChild(item);
+    section.appendChild(item);
     toggleAuthElements(user);
 }
 
-function renderContact21(contactId, contactData, user) {
-    const container = document.getElementById("contactContainer21");
-    const item = document.createElement("div");
-    item.classList.add("contact-item");
-    item.dataset.id = contactId;
-    
-    item.innerHTML = `
-    <h4 class="contact-name">${contactData.name}</h4>
-    <p>${contactData.description}</p>
-    <p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>
-    <div class="contact-actions hidden" data-auth="required">
-        <button class="edit-btn">Edit</button>
-        <button class="delete-btn">Delete</button>
-    </div>
-    `;
+async function loadContacts(user, getContactsFn, headingText) {
+    const container = document.getElementById("contactContainer");
+    if (!container) return;
 
-    container.appendChild(item);
-    toggleAuthElements(user);
-}
+    // Create a section wrapper with heading
+    const section = document.createElement("div");
+    section.classList.add("contact-group");
+    section.innerHTML = `<h3 class="contact-headings">${headingText}</h3>`;
+    container.appendChild(section);
 
-function renderContact21Pro(contactId, contactData, user) {
-    const container = document.getElementById("contactContainer21Pro");
-    const item = document.createElement("div");
-    item.classList.add("contact-item");
-    item.dataset.id = contactId;
-    
-    item.innerHTML = `
-    <h4 class="contact-name">${contactData.name}</h4>
-    <p>${contactData.description}</p>
-    <p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>
-    <div class="contact-actions hidden" data-auth="required">
-        <button class="edit-btn">Edit</button>
-        <button class="delete-btn">Delete</button>
-    </div>
-    `;
-
-    container.appendChild(item);
-    toggleAuthElements(user);
-}
-
-// ########### Loading Contacts for the 3 contact groups ###########
-
-async function loadContacts25(user) {
     try {
-        const querySnapshot25 = await getAllContacts25();
-        
-        console.log("Contacts found:", querySnapshot25.size);
-        querySnapshot25.forEach((doc) => {
+        const snapshot = await getContactsFn();
+        console.log(`Contacts found for ${headingText}:`, snapshot.size);
+        snapshot.forEach((doc) => {
             console.log("Contact doc:", doc.id, doc.data());
-            renderContact25(doc.id, doc.data(), user);
+            renderContact(doc.id, doc.data(), user, section);
         });
     } catch (err) {
-        console.error("Error loading contacts:", err);
-        const container = document.getElementById("contactContainer25");
-        if (container) container.innerHTML = "<p>Failed to load contacts.</p>";
+        console.error(`Error loading contacts for ${headingText}:`, err);
+        section.innerHTML += "<p>Failed to load contacts.</p>";
     }
 }
 
-async function loadContacts21(user) {
-    try {
-        const querySnapshot21 = await getAllContacts21();
-        
-        console.log("Contacts found:", querySnapshot21.size);
-        querySnapshot21.forEach((doc) => {
-            console.log("Contact doc:", doc.id, doc.data());
-            renderContact21(doc.id, doc.data(), user);
-        });
-    } catch (err) {
-        console.error("Error loading contacts:", err);
-        const container = document.getElementById("contactContainer21");
-        if (container) container.innerHTML = "<p>Failed to load contacts.</p>";
-    }
-}
 
-async function loadContacts21Pro(user) {
-    try {
-        const querySnapshot21Pro = await getAllContacts21Pro();
-        
-        console.log("Contacts found:", querySnapshot21Pro.size);
-        querySnapshot21Pro.forEach((doc) => {
-            console.log("Contact doc:", doc.id, doc.data());
-            renderContact21Pro(doc.id, doc.data(), user);
-        });
-    } catch (err) {
-        console.error("Error loading contacts:", err);
-        const container = document.getElementById("contactContainer21Pro");
-        if (container) container.innerHTML = "<p>Failed to load contacts.</p>";
-    }
-}
-
-// Ref: https://firebase.google.com/docs/auth/web/password-auth#web_3
+// ================ Admin Features ================
 async function showAdminFeatures() {
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("password").value;
-    const auth = getAuth();
+    const email = document.getElementById("email")?.value;
+    const pass = document.getElementById("password")?.value;
 
-    if (email == CLIENT_EMAIL) {
-        if (checkAdminLogin(auth, email, pass)) {
-            console.log("Admin Signed In");
-            // Add more here, such as displaying the buttons 
-            contactEdit = document.getElementById("contact-actions hidden");
-            adminInterface = document.getElementById("adminInterface");
-
-            adminInterface.style.display = flex;
-            contactEdit.style.display = flex;
+    if (email === CLIENT_EMAIL) {
+        try {
+            const result = await checkAdminLogin(auth, email, pass);
+            if (result) {
+                console.log("Admin Signed In");
+                const adminInterface = document.getElementById("adminInterface");
+                if (adminInterface) adminInterface.style.display = "flex";
+                document.querySelectorAll(".contact-actions").forEach(el => {
+                    el.style.display = "flex";
+                });
+            }
+        } catch (err) {
+            console.error("Admin login failed:", err);
         }
     }
-
 }
 
 
-// Single DOMContentLoaded block
+// ================ DOMContentLoaded Setup ================
 document.addEventListener("DOMContentLoaded", () => {
     setupLoginForm();
     setupRegisterForm();
@@ -415,19 +373,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (forgotP) forgotP.addEventListener("click", handleForgotPassword);
 
     const path = window.location.pathname;
-    // Media page
     if (path.includes("media.html")) {
-        watchAuthState((user) => {
-            loadPosts(user);
-        });
+        watchAuthState((user) => loadPosts(user));
     }
-
-    // Contact page
     if (path.includes("contact.html")) {
         watchAuthState((user) => {
-            loadContacts25(user);
-            loadContacts21(user);
-            loadContacts21Pro(user);
+            loadContacts(user, getAllContacts25, "Contacts 2025");
+            loadContacts(user, getAllContacts21, "Contacts 2021–2022");
+            loadContacts(user, getAllContacts21Pro, "Project Contacts 2021");
         });
     }
 
@@ -439,7 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-//  Single delegated click handler
+// ================ Delegated Click Handler ================
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("mediaContainer");
     if (!container) return;
@@ -465,11 +418,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (e.target.classList.contains("pin-btn")) {
             try {
-                await updatePost(postId, {pinned: true}); // ✅ wrapper
-                alert("Post pinned!");
+                const currentlyPinned = item.dataset.pinned === "true";
+                const newPinned = await togglePin(postId, currentlyPinned);
+
+                item.dataset.pinned = newPinned ? "true" : "false";
+
+                // Show styled modal
+                const pinModal = document.getElementById("pinModal");
+                const pinMessage = document.getElementById("pinMessage");
+                const closeBtn = document.getElementById("closePinModal");
+
+                pinMessage.innerText = `Post "${item.querySelector(".media-title").innerText}" has been ${newPinned ? "pinned" : "unpinned"}.`;
+                pinModal.style.display = "block";
+
+                // Manual close
+                closeBtn.onclick = () => {
+                    pinModal.style.display = "none";
+                };
+
+                // Auto-dismiss after 3 seconds
+                setTimeout(() => {
+                    pinModal.style.display = "none";
+                }, 3000);
             } catch (err) {
-                alert("You don’t have permission to pin this post.");
+                alert("You don’t have permission to change pin status.");
             }
         }
+
+
     });
 });

@@ -9,6 +9,8 @@ import {
     getAllContacts25,
     getAllContacts21,
     getAllContacts21Pro,
+    saveUserInfo,
+    getUserInfo,
     addContact,
     updateContact,
     deleteContact,
@@ -85,16 +87,20 @@ function initAuthUI() {
     watchAuthState(async (user) => {
         if (user) {
             setText("loginStatus", "✅ Logged In", "green");
+            let firstName;
             if (authLink) {
-                authLink.innerText = `${user.email} (Logout)`;
+                const userSnap = await getUserInfo(user.uid);
+                if (userSnap.exists()) {
+                    firstName = userSnap.data().FirstName;
+                } else {
+                    firstName = user.email; // fallback
+                }
+
+                authLink.innerText = `Hello ${firstName} (My account)`;
                 authLink.style.color = "green";
                 authLink.onclick = async (e) => {
-                    e.preventDefault();
-                    const confirmLogout = confirm(`Sign out ${user.email}?`);
-                    if (confirmLogout) {
-                        await logoutUser();
-                        window.location.href = "login.html";
-                    }
+                e.preventDefault();
+                window.location.href = "account.html";    
                 };
             }
         } else {
@@ -203,13 +209,19 @@ async function handleRegister(event) {
     event.preventDefault();
     const email = document.getElementById("registeremail").value;
     const pass = document.getElementById("registerpassword").value;
+    const fName = document.getElementById("registerFirstNameId").value;
+    const lName = document.getElementById("registerLastNameId").value;
 
     try {
         const userCredential = await registerUser(email, pass);
-        console.log("Firebase response:", userCredential);
+        const uid = userCredential.user.uid;
+
+        await saveUserInfo(uid, fName, lName, email);
+
         document.getElementById("signinMessageR").innerText = "Account created successfully!";
         document.getElementById("signinMessageR").style.color = "pink";
         document.getElementById("registerForm").reset();
+
     } catch (error) {
         console.error("Registration error:", error);
         document.getElementById("signinMessageR").innerText = error.message;
@@ -405,6 +417,57 @@ async function loadContacts(user, getContactsFn, headingText) {
     }
 }
 
+export function initAccountPage() {
+    const firstNameInput = document.getElementById("accountSettingsFirstNameID");
+    const lastNameInput = document.getElementById("accountSettingsLastNameID");
+    const saveBtn = document.getElementById("saveAccountBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if (!(firstNameInput && lastNameInput && saveBtn && logoutBtn)) return;
+
+    // Populate inputs with user data
+    watchAuthState(async (user) => {
+        if (!user) {
+            alert("You must be logged in to view this page.");
+            window.location.href = "login.html";
+            return;
+        }
+
+        const snap = await getUserInfo(user.uid);
+        if (snap.exists()) {
+            firstNameInput.value = snap.data().FirstName || "";
+            lastNameInput.value = snap.data().LastName || "";
+        }
+    });
+
+    // Save updated info
+        saveBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) return;
+        try {
+            await saveUserInfo(user.uid, firstNameInput.value, lastNameInput.value, user.email);
+            alert("Account updated!");
+        } catch (err) {
+            console.error("Update failed:", err);
+            alert("Failed to save changes.");
+        }
+    });
+
+    // Logout button
+    logoutBtn.addEventListener("click", async () => {
+        try {
+            await logoutUser();
+            // Redirect without showing the "must be signed in" alert
+            window.location.href = "login.html";
+        } catch (err) {
+            console.error("Logout failed:", err);
+            alert("Failed to sign out.");
+        }
+    });
+}
+
+
 
 // ================ Admin Features ================
 async function showAdminFeatures() {
@@ -462,6 +525,9 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "blog.html";
         });
     }
+    if (window.location.pathname.includes("account.html")) {
+    initAccountPage();
+}
 });
 
 // ================ Delegated Click Handler ================

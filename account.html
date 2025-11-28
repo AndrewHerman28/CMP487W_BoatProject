@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account | PSU Abington Boat Project</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="account.css">
+    <script type="module" src="firebase.js" defer></script>
+    <script type="module" src="account.js" defer></script> <!-- New account page logic -->
+    <script type="module" src="main.js" defer></script>
+
+
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <h1 class="logo">My Account</h1>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="media.html">Media</a></li>
+            <li><a href="admin.html" id="uploadLink" data-auth="admin" class="hidden">Upload</a></li>
+            <li><a href="#" id="authLink">Login</a></li>
+        </ul>
+    </nav>
+    <span id="loginStatus"></span>
+</header>
+
+<main id="content-area">
+    <div class="wrapper">
+  <div class="title-text">
+    <div class="title login">Account Settings</div>
+  </div>
+
+  <form id="accountForm" class="login"> <!-- reuse login form class for styling -->
+    <div class="field">
+        <label for="firstName">First Name:</label><br>
+      <input type="text" id="accountSettingsFirstNameID" name="accountSettingsFirstName" placeholder="First Name" required />
+      <span class="edit-icon" onclick="enableField('accountSettingsLastNameID')">✏️</span>
+    </div>
+    <div class="field">
+        <label for="firstName">Last Name:</label><br>
+      <input type="text" id="accountSettingsLastNameID" name="accountSettingsLastName" placeholder="Last Name" disabled />
+  <span class="edit-icon" onclick="enableField('accountSettingsLastNameID')">✏️</span>
+</div>
+    <div class="field btn">
+      <div class="btn-layer"></div> <!-- for gradient overlay if your login button uses this -->
+      <button id="saveAccountBtn">Save Changes</button>
+    </div>
+    <div class="field">
+      <button id="logoutBtn" class="logout-btn">Log Out</button>
+    </div>
+  </form>
+</div>
+</main>
+</body>
+</html>

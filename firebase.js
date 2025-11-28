@@ -12,10 +12,12 @@ import {
     collection,
     addDoc,
     getDocs,
+    getDoc,
     serverTimestamp,
     updateDoc,
     deleteDoc,
     doc,
+    setDoc,
     query,
     where,
     orderBy
@@ -137,7 +139,32 @@ export async function toggleBlogPin(postId, currentlyPinned) {
     await updateDoc(postRef, { pinned: newPinned });
     return newPinned;
 }
+export async function saveUserInfo(uid, firstName, lastName, email) {
+    try {
+        await setDoc(doc(db, "userInfo", uid), {
+            UID: uid,
+            FirstName: firstName,
+            LastName: lastName,
+            Email: email
+        });
+        console.log("User info saved to Firestore");
+    } catch (error) {
+        console.error("Error saving user info:", error);
+        throw error; 
+    }
+}
+export async function getUserInfo(uid) {
+    try {
+        const userDocRef = doc(db, "userInfo", uid);
+        const userSnap = await getDoc(userDocRef);
 
+        console.log("User info retrieved");
+        return userSnap; 
+    } catch (error) {
+        console.error("Error getting user info:", error);
+        throw error;
+    }
+}
 // Contact Functions
 
 export async function getAllContacts25() {

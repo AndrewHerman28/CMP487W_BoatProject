@@ -1,0 +1,19 @@
+.field.btn {
+  position: relative; /* so overlay and button can stack */
+}
+
+.btn-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 25px;
+  z-index: 0; /* behind button */
+}
+
+#saveAccountBtn {
+  position: relative; /* text above overlay */
+  z-index: 1;
+  color: white;
+}

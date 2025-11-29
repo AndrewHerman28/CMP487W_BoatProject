@@ -308,22 +308,17 @@ function renderBlogPost(postId, postData, user) {
         <button class="edit-btn">✏️</button>
         <button class="delete-btn">🗑️</button>
     </div>
-
-
       <h3 class="media-title">${postData.title}</h3>
       <p class="media-date">${postData.date}</p>
-      <a href="${postData.link}" target="_blank">
-        <img src="${postData.images[0]}" alt="${postData.title}">
-        <img src="${postData.images[1]}" alt="${postData.title}">
-        <img src="${postData.images[2]}" alt="${postData.title}">
-        <img src="${postData.images[3]}" alt="${postData.title}">
-        <img src="${postData.images[4]}" alt="${postData.title}">
-        <img src="${postData.images[5]}" alt="${postData.title}">
-        <img src="${postData.images[6]}" alt="${postData.title}">
-        <img src="${postData.images[7]}" alt="${postData.title}">
-      </a>
-      <p class="media-description">${postData.description}</p>
-    `;
+      <a href="${postData.link}" target="_blank">`
+
+    for (let i = 0; i < postData.images.length; i++) {
+        item.innerHTML += `
+        <figure>
+            <img src="${postData.images[i]}" alt="Image">
+            <figcaption>Figure ${i+1}</figcaption></figure>`;
+    }
+    item.innerHTML += `</a><br><p class="media-description">${postData.description}</p>`;
 
     container.appendChild(item);
 

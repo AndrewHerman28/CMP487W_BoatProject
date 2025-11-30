@@ -167,4 +167,4 @@ export async function uploadImage(file) {
     const imageRef = ref(storage, `media/${file.name}`);
     await uploadBytes(imageRef, file);
     return await getDownloadURL(imageRef);
-}
+} 

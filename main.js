@@ -11,6 +11,8 @@ import {
     getAllContacts21Pro,
     updateContact,
     deleteContact,
+    deleteBlogPost,
+    updateBlogPost,
     togglePin,
     updatePost,
     deletePost,
@@ -343,7 +345,92 @@ function renderBlogPost(postId, postData, user) {
 
         showToast(`Post "${postData.title}" ${newPinned ? "pinned" : "unpinned"}!`);
     });
+    const editBtn = item.querySelector(".edit-btn");
+        let isEditing = false;
 
+    editBtn.addEventListener("click", async () => {
+    if (!isEditing) {
+        // ================= ENTER EDIT MODE =================
+        isEditing = true;
+        editBtn.textContent = "✅"; // Show save icon
+
+        // Get elements
+        const titleEl = item.querySelector(".media-title");
+        const dateEl = item.querySelector(".media-date");
+        const descEl = item.querySelector(".media-description");
+        const linkEl = item.querySelector("a");
+
+        // Convert title to <input>
+        titleEl.outerHTML = `
+            <input id="edit-title-${postId}" class="edit-input" value="${postData.title}">
+        `;
+
+        // Convert date to <input type="date">
+        dateEl.outerHTML = `
+        <input id="edit-date-${postId}" class="edit-input" value="${postData.date}">
+        `;
+
+
+        // Convert description to <textarea>
+        descEl.outerHTML = `
+            <textarea id="edit-description-${postId}" class="edit-textarea">${postData.description}</textarea>
+        `;
+        
+        // Convert images to editable text fields
+        const figures = item.querySelectorAll("figure");
+        figures.forEach((fig, i) => {
+            const img = fig.querySelector("img");
+            fig.outerHTML = `
+                <div class="image-edit-wrapper">
+                    <input class="edit-input" id="edit-image-${postId}-${i}" value="${img.src}">
+                </div>
+            `;
+        });
+
+    } else {
+    // ================= SAVE TO FIREBASE =================
+    isEditing = false;
+    editBtn.textContent = "✏️";
+
+    const newTitle = document.getElementById(`edit-title-${postId}`).value.trim();
+    const newDate = document.getElementById(`edit-date-${postId}`).value.trim();
+    const newDescription = document.getElementById(`edit-description-${postId}`).value.trim();
+    
+
+    // Collect updated image URLs
+    const imageInputs = item.querySelectorAll(`[id^="edit-image-${postId}-"]`);
+    const newImages = Array.from(imageInputs).map(input => input.value.trim());
+
+    const updatedData = {
+        ...postData,
+        title: newTitle,
+        date: newDate,
+        description: newDescription,
+        images: newImages
+    };
+
+    // 1. Update Firestore
+    await updateBlogPost(postId, updatedData);
+
+    // 2. Show success message
+    showToast(`Post "${newTitle}" updated!`);
+
+    // 3. Re-render post UI
+    container.removeChild(item);
+    renderBlogPost(postId, updatedData, user);
+}   
+});
+    const deleteBtn = item.querySelector(".delete-btn");
+    deleteBtn.addEventListener("click", async () => {
+    try {
+        await deleteBlogPost(postId); // delete from Firestore
+        container.removeChild(item);   // remove from DOM immediately
+        //showToast(`Post "${postData.title}" deleted!`);
+    } catch (err) {
+        console.error("Failed to delete post:", err);
+        //showToast("Failed to delete post.");
+    }
+});
 }
 
 async function loadBlogPosts(user) {

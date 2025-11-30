@@ -19,7 +19,8 @@ import {
     checkAdminLogin,
     auth,
     ADMIN_EMAIL,
-    getAllBlogPosts
+    getAllBlogPosts,
+    addMediaPost
 } from "./firebase.js";
 
 // ================ UI Toggles, Event Listeners, DOM ================
@@ -457,6 +458,43 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "blog.html";
         });
     }
+});
+
+// ================ Upload Media/Contacts from admin forms to db ================
+document.addEventListener("DOMContentLoaded", () => {
+    const mediaForm = document.getElementById("postForm");
+    const contactForm = document.getElementById("contactForm");
+
+    mediaForm.addEventListener("uploadMedia", (event) => {
+        event.preventDefault(); // Prevent default form submission and page refresh
+
+        const formData = new FormData(form);
+
+        const postTitle = formData.get("post-header");
+        const postLink = formData.get("post-link");
+        const postDate = formData.get("post-date");
+        const postContent = formData.get("post-content");
+        const postImage = formData.get("post-img");
+
+        const data = {title: postTitle, link: postLink, date: postDate, description: postContent, image: postImage};
+
+        addMediaPost(data);
+        
+    });
+
+    contactForm.addEventListener("uploadContact", (event) => {
+        event.preventDefault(); // Prevent default form submission and page refresh
+
+        const formData = new FormData(form);
+
+        const contactName = formData.get("contact_name");
+        const contactDes = formData.get("contact_des");
+        const contactLink = formData.get("contact_link");
+
+        const data = {name: contactName, description: contactDes, link: contactLink};
+
+        addContact(data);
+    });
 });
 
 // ================ Delegated Click Handler ================

@@ -34,29 +34,23 @@
 <main id="content-area">
     <div class="auth-wrapper">
         <div class="login-container">
-            <form id="postForm">
+            <form id="postForm" method="POST">
                 <h2>Upload Media</h2>
                 <input type="text" id="post_header" placeholder="Title" required>
                 <input type="text" id="post_date" placeholder="Date" required>
-                <input type="url" id="post_link" placeholder="Link" required>
+                <input type="text" id="post_link" placeholder="Link" required>
                 <textarea id="post_content" placeholder="Content" required></textarea>
-                <input type="file" id="post_img" accept="image/*" required>
-                <button type="submit">Upload Post</button>
+                <input type="file" id="post_img" accept="image/*">
+                <button type="submit" id="uploadMedia">Upload Post</button>
                 <p id="postMessage"></p>
             </form>
 
             <div>
-                <input type="checkbox" id="adminContactButton" onchange=toggleContactForm()>Show/Hide Upload Contact
-                Menu</button>
-            </div>
-
-            <div>
-                <form id="contactForm">
+                <form id="contactForm" method="POST">
                     <h2>Upload Contact</h2>
                     <input type="text" id="contact_name" placeholder="Name" required/>
-                    <input type="text" id="contact_email" placeholder="Email (optional)"/>
-                    <input type="text" id="contact_division" placeholder="Division"/>
-                    <input type="text" id="contact_link" placeholder="Project (link)"/>
+                    <input type="text" id="contact_des" placeholder="Description (optional)"/>
+                    <input type="text" id="contact_link" placeholder="Link (optional)"/>
                     <button type="submit" id="uploadContact">Upload Contact Information</button>
                 </form>
             </div>

@@ -104,6 +104,10 @@ export async function togglePin(postId, currentlyPinned) {
     return newPinned;
 }
 
+export async function addMediaPost(data) {
+    return await addDoc(collection(db, "mediaPosts"), data);
+}
+
 // Current blog posts
 
 export async function createBlogPost(data) {

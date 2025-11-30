@@ -9,7 +9,6 @@ import {
     getAllContacts25,
     getAllContacts21,
     getAllContacts21Pro,
-    addContact,
     updateContact,
     deleteContact,
     togglePin,
@@ -20,8 +19,11 @@ import {
     auth,
     ADMIN_EMAIL,
     getAllBlogPosts,
-    addMediaPost
 } from "./firebase.js";
+
+import {
+    addDoc
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
 // ================ UI Toggles, Event Listeners, DOM ================
 function setupLoginToggle() {
@@ -424,6 +426,39 @@ async function showAdminFeatures() {
     }
 }
 
+// Upload media and contacts for admin
+async function adminUpload() {
+    const mediaForm = document.getElementById("postForm");
+    const contactForm = document.getElementById("contactForm");
+
+    mediaForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission and page refresh
+
+        const postTitle = document.getElementById("post-header").value;
+        const postLink = document.getElementById("post-link").value;
+        const postDate = document.getElementById("post-date").value;
+        const postContent = document.getElementById("post-content").value;
+        const postImage = document.getElementById("post-img").value;
+
+        const data = {title: postTitle, link: postLink, date: postDate, description: postContent, image: postImage};
+
+        await addDoc(collection(db, "mediaPosts"), data);
+        
+    });
+
+    contactForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission and page refresh
+
+        const contactName = document.getElementById("contact_name").value;
+        const contactDes = document.getElementById("contact_des").value;
+        const contactLink = document.getElementById("contact_link").value;
+
+        const data = {name: contactName, description: contactDes, link: contactLink};
+
+        await addDoc(collection(db, "contactInfo2025"), data);
+    });
+}
+
 
 // ================ DOMContentLoaded Setup ================
 document.addEventListener("DOMContentLoaded", () => {
@@ -434,6 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupLogoutButton();
     initAuthUI();
     showAdminFeatures();
+    adminUpload();
 
     const forgotP = document.getElementById("forgotPassword");
     if (forgotP) forgotP.addEventListener("click", handleForgotPassword);
@@ -458,43 +494,6 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "blog.html";
         });
     }
-});
-
-// ================ Upload Media/Contacts from admin forms to db ================
-document.addEventListener("DOMContentLoaded", () => {
-    const mediaForm = document.getElementById("postForm");
-    const contactForm = document.getElementById("contactForm");
-
-    mediaForm.addEventListener("uploadMedia", (event) => {
-        event.preventDefault(); // Prevent default form submission and page refresh
-
-        const formData = new FormData(form);
-
-        const postTitle = formData.get("post-header");
-        const postLink = formData.get("post-link");
-        const postDate = formData.get("post-date");
-        const postContent = formData.get("post-content");
-        const postImage = formData.get("post-img");
-
-        const data = {title: postTitle, link: postLink, date: postDate, description: postContent, image: postImage};
-
-        addMediaPost(data);
-        
-    });
-
-    contactForm.addEventListener("uploadContact", (event) => {
-        event.preventDefault(); // Prevent default form submission and page refresh
-
-        const formData = new FormData(form);
-
-        const contactName = formData.get("contact_name");
-        const contactDes = formData.get("contact_des");
-        const contactLink = formData.get("contact_link");
-
-        const data = {name: contactName, description: contactDes, link: contactLink};
-
-        addContact(data);
-    });
 });
 
 // ================ Delegated Click Handler ================

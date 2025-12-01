@@ -43,7 +43,11 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-export const ADMIN_EMAIL = "newuser1@gmail.com";
+export const ADMIN_EMAILS = [
+    "newuser1@gmail.com",
+    "ajh7353@psu.edu",
+];
+
 
 // =================== Auth Helpers ===================
 export async function signInUser(email, password) {

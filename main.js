@@ -9,6 +9,7 @@ import {
     getAllContacts25,
     getAllContacts21,
     getAllContacts21Pro,
+    addContact,
     updateContact,
     deleteContact,
     togglePin,
@@ -19,11 +20,12 @@ import {
     auth,
     ADMIN_EMAIL,
     getAllBlogPosts,
+    addComment,
+    listenToComments,
+    deleteComment,
+    addMediaPost,
+    cleanupDeletedComments
 } from "./firebase.js";
-
-import {
-    addDoc
-} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
 // ================ UI Toggles, Event Listeners, DOM ================
 function setupLoginToggle() {
@@ -303,28 +305,36 @@ function renderBlogPost(postId, postData, user) {
     item.classList.add("media-item");
     item.dataset.id = postId;
 
-    if (postData.pinned) item.dataset.pinned = "true";
-
+    // Build post content
     item.innerHTML = `
-      <div class="media-actions hidden" data-auth="required">
-        <button class="pin-btn">📌</button>
-        <button class="edit-btn">✏️</button>
-        <button class="delete-btn">🗑️</button>
+    <div class="media-actions hidden" data-auth="required">
+      <button class="pin-btn">📌</button>
+      <button class="edit-btn">✏️</button>
+      <button class="delete-btn">🗑️</button>
     </div>
-      <h3 class="media-title">${postData.title}</h3>
-      <p class="media-date">${postData.date}</p>
-      <a href="${postData.link}" target="_blank">`
+    <h3 class="media-title">${postData.title}</h3>
+    <p class="media-date">${postData.date}</p>
+    <p class="media-description">${postData.description}</p>
+  `;
 
-    for (let i = 0; i < postData.images.length; i++) {
-        item.innerHTML += `
-        <figure>
-            <img src="${postData.images[i]}" alt="Image">
-            <figcaption>Figure ${i+1}</figcaption></figure>`;
-    }
-    item.innerHTML += `</a><br><p class="media-description">${postData.description}</p>`;
+    // Add comment section
+    const commentsEl = document.createElement("div");
+    commentsEl.classList.add("comments");
+    commentsEl.dataset.postId = postId;
+    commentsEl.innerHTML = `
+    <h4>Comments</h4>
+    <div class="comment-list"></div>
+    <form class="comment-form">
+      <textarea placeholder="Write a comment..." required></textarea>
+      <button type="submit">Post Comment</button>
+    </form>
+  `;
+    item.appendChild(commentsEl);
 
+    // Append post card to container
     container.appendChild(item);
 
+    // Wire up pin button
     const pinBtn = item.querySelector(".pin-btn");
     pinBtn.addEventListener("click", async () => {
         const currentlyPinned = item.dataset.pinned === "true";
@@ -344,7 +354,10 @@ function renderBlogPost(postId, postData, user) {
         showToast(`Post "${postData.title}" ${newPinned ? "pinned" : "unpinned"}!`);
     });
 
+    // Wire up comment form + listener
+    renderCommentSection(postId, user);
 }
+
 
 async function loadBlogPosts(user) {
     try {
@@ -356,6 +369,137 @@ async function loadBlogPosts(user) {
         const container = document.getElementById("blogContainer");
         if (container) container.innerHTML = "<p>Failed to load posts.</p>";
     }
+}
+
+// ============== Render/Load Comments ======================
+export function renderCommentSection(postId, user) {
+    const postEl = document.querySelector(`.media-item[data-id="${postId}"]`);
+    if (!postEl) return;
+
+    const commentsEl = postEl.querySelector(".comments");
+    const form = commentsEl.querySelector(".comment-form");
+    const list = commentsEl.querySelector(".comment-list");
+
+    // Handle new top-level comment
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const text = form.querySelector("textarea").value.trim();
+        if (!text) return;
+        await addComment(postId, user, text, null); // parentId = null
+        form.reset();
+    });
+
+    // Listen for all comments
+    listenToComments(postId, (snapshot) => {
+        list.innerHTML = "";
+        const comments = [];
+        snapshot.forEach((docSnap) => {
+            comments.push({id: docSnap.id, ...docSnap.data()});
+        });
+
+        // Group by parent
+        const byParent = {};
+        comments.forEach(c => {
+            const parent = c.parentId || "root";
+            if (!byParent[parent]) byParent[parent] = [];
+            byParent[parent].push(c);
+        });
+
+        function renderThread(parentId, container, depth = 0) {
+            (byParent[parentId] || []).forEach(c => {
+                const item = document.createElement("div");
+                item.classList.add("comment-item");
+                item.style.marginLeft = `${depth * 20}px`;
+                item.dataset.id = c.id;
+
+                const canDelete = user.isAdmin || (c.authorId === user.uid);
+
+                // If deleted
+                if (c.deleted) {
+                    // Only show placeholder if there are replies
+                    if (byParent[c.id] && byParent[c.id].length > 0) {
+                        item.innerHTML = `<p><em>[deleted]</em></p><div class="reply-list"></div>`;
+                    } else {
+                        // No replies → skip rendering entirely
+                        return;
+                    }
+                } else {
+                    item.innerHTML = `
+        <p><strong>${c.authorName}</strong>: ${c.text}</p>
+        <small>${c.timestamp?.toDate().toLocaleString() || ""}</small>
+        <button class="btn btn-secondary small reply-btn">Reply</button>
+        ${canDelete ? `<button class="btn btn-danger small delete-comment">Delete</button>` : ""}
+        <button class="btn btn-secondary small toggle-replies hidden">Show Replies</button>
+        <div class="reply-list"></div>
+      `;
+                }
+
+                const replyList = item.querySelector(".reply-list");
+                const toggleBtn = item.querySelector(".toggle-replies");
+
+                // Show toggle if children exist
+                if (byParent[c.id] && byParent[c.id].length > 0 && toggleBtn) {
+                    toggleBtn.classList.remove("hidden");
+                    toggleBtn.addEventListener("click", () => {
+                        const isHidden = replyList.classList.toggle("collapsed");
+                        toggleBtn.textContent = isHidden ? "Show Replies" : "Hide Replies";
+                    });
+                }
+
+                // Reply form logic
+                const replyBtn = item.querySelector(".reply-btn");
+                if (replyBtn) {
+                    replyBtn.addEventListener("click", () => {
+                        const replyForm = document.createElement("form");
+                        replyForm.classList.add("reply-form");
+                        replyForm.innerHTML = `
+          <textarea placeholder="Write a reply..." required></textarea>
+          <button type="submit" class="btn btn-primary small">Post Reply</button>
+        `;
+                        replyList.appendChild(replyForm);
+
+                        replyForm.addEventListener("submit", async (e) => {
+                            e.preventDefault();
+                            const text = replyForm.querySelector("textarea").value.trim();
+                            if (!text) return;
+                            await addComment(postId, user, text, c.id);
+                            replyForm.remove();
+                        });
+                    });
+                }
+
+                // Delete logic
+                const deleteBtn = item.querySelector(".delete-comment");
+                if (deleteBtn) {
+                    deleteBtn.addEventListener("click", () => {
+                        const modal = document.getElementById("deleteModal");
+                        modal.classList.add("show");
+
+                        const confirmBtn = document.getElementById("confirmDelete");
+                        const cancelBtn = document.getElementById("cancelDelete");
+
+                        // Clear old handlers before binding
+                        confirmBtn.onclick = null;
+                        cancelBtn.onclick = null;
+
+                        confirmBtn.onclick = async () => {
+                            await deleteComment(postId, c.id);
+                            modal.classList.remove("show");
+                        };
+                        cancelBtn.onclick = () => modal.classList.remove("show");
+                    });
+                }
+
+                // Always render children
+                renderThread(c.id, replyList, depth + 1);
+
+                container.appendChild(item);
+            });
+        }
+
+
+        renderThread("root", list);
+    });
 }
 
 
@@ -409,7 +553,7 @@ async function showAdminFeatures() {
     const email = document.getElementById("email")?.value;
     const pass = document.getElementById("password")?.value;
 
-    if (email === CLIENT_EMAIL) {
+    if (email === ADMIN_EMAIL) {
         try {
             const result = await checkAdminLogin(auth, email, pass);
             if (result) {
@@ -426,39 +570,6 @@ async function showAdminFeatures() {
     }
 }
 
-// Upload media and contacts for admin
-async function adminUpload() {
-    const mediaForm = document.getElementById("postForm");
-    const contactForm = document.getElementById("contactForm");
-
-    mediaForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent default form submission and page refresh
-
-        const postTitle = document.getElementById("post-header").value;
-        const postLink = document.getElementById("post-link").value;
-        const postDate = document.getElementById("post-date").value;
-        const postContent = document.getElementById("post-content").value;
-        const postImage = document.getElementById("post-img").value;
-
-        const data = {title: postTitle, link: postLink, date: postDate, description: postContent, image: postImage};
-
-        await addDoc(collection(db, "mediaPosts"), data);
-        
-    });
-
-    contactForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent default form submission and page refresh
-
-        const contactName = document.getElementById("contact_name").value;
-        const contactDes = document.getElementById("contact_des").value;
-        const contactLink = document.getElementById("contact_link").value;
-
-        const data = {name: contactName, description: contactDes, link: contactLink};
-
-        await addDoc(collection(db, "contactInfo2025"), data);
-    });
-}
-
 
 // ================ DOMContentLoaded Setup ================
 document.addEventListener("DOMContentLoaded", () => {
@@ -469,7 +580,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setupLogoutButton();
     initAuthUI();
     showAdminFeatures();
-    adminUpload();
 
     const forgotP = document.getElementById("forgotPassword");
     if (forgotP) forgotP.addEventListener("click", handleForgotPassword);
@@ -486,7 +596,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     if (path.includes("blog.html")) {
-        watchAuthState((user) => loadBlogPosts(user))};
+        watchAuthState((user) => loadBlogPosts(user))
+    }
+    ;
 
     const btn = document.getElementById("currentProjectBtn");
     if (btn) {
@@ -496,7 +608,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// ================ Delegated Click Handler ================
+// ================ Upload Media/Contacts from admin forms to db ================
+document.addEventListener("DOMContentLoaded", () => {
+    const mediaForm = document.getElementById("postForm");
+    const contactForm = document.getElementById("contactForm");
+
+    mediaForm.addEventListener("uploadMedia", async (event) => {
+        event.preventDefault(); // Prevent default form submission and page refresh
+
+        const formData = new FormData(form);
+
+        const postTitle = formData.get("post-header");
+        const postLink = formData.get("post-link");
+        const postDate = formData.get("post-date");
+        const postContent = formData.get("post-content");
+        const postImage = formData.get("post-img");
+
+        const data = {title: postTitle, link: postLink, date: postDate, description: postContent, image: postImage};
+
+        addMediaPost(data);
+
+    });
+
+    contactForm.addEventListener("uploadContact", (event) => {
+        event.preventDefault(); // Prevent default form submission and page refresh
+
+        const formData = new FormData(form);
+
+        const contactName = formData.get("contact_name");
+        const contactDes = formData.get("contact_des");
+        const contactLink = formData.get("contact_link");
+
+        const data = {name: contactName, description: contactDes, link: contactLink};
+
+        addContact(data);
+    });
+});
+
+//================ Delegated Click Handler ================
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("mediaContainer");
     if (!container) return;

@@ -19,8 +19,14 @@ import {
     checkAdminLogin,
     auth,
     ADMIN_EMAIL,
-    getAllBlogPosts
+    getAllBlogPosts,
+    addComment,
+    listenToComments,
+    deleteComment,
+    addMediaPost,
+    cleanupDeletedComments
 } from "./firebase.js";
+import {renderCommentSection} from "./main";
 
 // ================ UI Toggles, Event Listeners, DOM ================
 function setupLoginToggle() {
@@ -316,9 +322,23 @@ function renderBlogPost(postId, postData, user) {
         item.innerHTML += `
         <figure>
             <img src="${postData.images[i]}" alt="Image">
-            <figcaption>Figure ${i+1}</figcaption></figure>`;
+            <figcaption>Figure ${i + 1}</figcaption></figure>`;
     }
     item.innerHTML += `</a><br><p class="media-description">${postData.description}</p>`;
+
+    // Add comment section
+    const commentsEl = document.createElement("div");
+    commentsEl.classList.add("comments");
+    commentsEl.dataset.postId = postId;
+    commentsEl.innerHTML = `
+    <h4>Comments</h4>
+    <div class="comment-list"></div>
+    <form class="comment-form">
+      <textarea placeholder="Write a comment..." required></textarea>
+      <button type="submit">Post Comment</button>
+    </form>
+  `;
+    item.appendChild(commentsEl);
 
     container.appendChild(item);
 
@@ -340,7 +360,8 @@ function renderBlogPost(postId, postData, user) {
 
         showToast(`Post "${postData.title}" ${newPinned ? "pinned" : "unpinned"}!`);
     });
-
+    // Wire up threaded comments
+    renderCommentSection(postId, user);
 }
 
 async function loadBlogPosts(user) {
@@ -353,6 +374,126 @@ async function loadBlogPosts(user) {
         const container = document.getElementById("blogContainer");
         if (container) container.innerHTML = "<p>Failed to load posts.</p>";
     }
+}
+
+export function renderCommentSection(postId, user) {
+    const postEl = document.querySelector(`.media-item[data-id="${postId}"]`);
+    if (!postEl) return;
+
+    const commentsEl = postEl.querySelector(".comments");
+    const form = commentsEl.querySelector(".comment-form");
+    const list = commentsEl.querySelector(".comment-list");
+
+    // Handle new top-level comment
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const text = form.querySelector("textarea").value.trim();
+        if (!text) return;
+        await addComment(postId, user, text, null);
+        form.reset();
+    });
+
+    // Listen for all comments
+    listenToComments(postId, (snapshot) => {
+        list.innerHTML = "";
+        const comments = [];
+        snapshot.forEach((docSnap) => {
+            comments.push({id: docSnap.id, ...docSnap.data()});
+        });
+
+        // Group by parent
+        const byParent = {};
+        comments.forEach(c => {
+            const parent = c.parentId || "root";
+            if (!byParent[parent]) byParent[parent] = [];
+            byParent[parent].push(c);
+        });
+
+        function renderThread(parentId, container, depth = 0) {
+            (byParent[parentId] || []).forEach(c => {
+                const item = document.createElement("div");
+                item.classList.add("comment-item");
+                item.style.marginLeft = `${depth * 20}px`;
+                item.dataset.id = c.id;
+
+                const canDelete = user.isAdmin || (c.authorId === user.uid);
+
+                if (c.deleted) {
+                    if (byParent[c.id] && byParent[c.id].length > 0) {
+                        item.innerHTML = `<p><em>[deleted]</em></p><div class="reply-list"></div>`;
+                    } else {
+                        return;
+                    }
+                } else {
+                    item.innerHTML = `
+            <p><strong>${c.authorName}</strong>: ${c.text}</p>
+            <small>${c.timestamp?.toDate().toLocaleString() || ""}</small>
+            <button class="btn btn-secondary small reply-btn">Reply</button>
+            ${canDelete ? `<button class="btn btn-danger small delete-comment">Delete</button>` : ""}
+            <button class="btn btn-secondary small toggle-replies hidden">Show Replies</button>
+            <div class="reply-list"></div>
+          `;
+                }
+
+                const replyList = item.querySelector(".reply-list");
+                const toggleBtn = item.querySelector(".toggle-replies");
+
+                if (byParent[c.id] && byParent[c.id].length > 0 && toggleBtn) {
+                    toggleBtn.classList.remove("hidden");
+                    toggleBtn.addEventListener("click", () => {
+                        const isHidden = replyList.classList.toggle("collapsed");
+                        toggleBtn.textContent = isHidden ? "Show Replies" : "Hide Replies";
+                    });
+                }
+
+                const replyBtn = item.querySelector(".reply-btn");
+                if (replyBtn) {
+                    replyBtn.addEventListener("click", () => {
+                        const replyForm = document.createElement("form");
+                        replyForm.classList.add("reply-form");
+                        replyForm.innerHTML = `
+              <textarea placeholder="Write a reply..." required></textarea>
+              <button type="submit" class="btn btn-primary small">Post Reply</button>
+            `;
+                        replyList.appendChild(replyForm);
+
+                        replyForm.addEventListener("submit", async (e) => {
+                            e.preventDefault();
+                            const text = replyForm.querySelector("textarea").value.trim();
+                            if (!text) return;
+                            await addComment(postId, user, text, c.id);
+                            replyForm.remove();
+                        });
+                    });
+                }
+
+                const deleteBtn = item.querySelector(".delete-comment");
+                if (deleteBtn) {
+                    deleteBtn.addEventListener("click", () => {
+                        const modal = document.getElementById("deleteModal");
+                        modal.classList.add("show");
+
+                        const confirmBtn = document.getElementById("confirmDelete");
+                        const cancelBtn = document.getElementById("cancelDelete");
+
+                        confirmBtn.onclick = null;
+                        cancelBtn.onclick = null;
+
+                        confirmBtn.onclick = async () => {
+                            await deleteComment(postId, c.id);
+                            modal.classList.remove("show");
+                        };
+                        cancelBtn.onclick = () => modal.classList.remove("show");
+                    });
+                }
+
+                renderThread(c.id, replyList, depth + 1);
+                container.appendChild(item);
+            });
+        }
+
+        renderThread("root", list);
+    });
 }
 
 
@@ -449,7 +590,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     if (path.includes("blog.html")) {
-        watchAuthState((user) => loadBlogPosts(user))};
+        watchAuthState((user) => loadBlogPosts(user))
+    }
+    ;
 
     const btn = document.getElementById("currentProjectBtn");
     if (btn) {

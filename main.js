@@ -18,7 +18,7 @@ import {
     uploadImage,
     checkAdminLogin,
     auth,
-    ADMIN_EMAIL,
+    ADMIN_EMAILS,
     getAllBlogPosts,
     addComment,
     listenToComments,
@@ -123,7 +123,7 @@ function setText(id, text, color) {
 }
 
 function toggleAuthElements(user) {
-    const isAdmin = user && user.email === ADMIN_EMAIL;
+    const isAdmin = user && ADMIN_EMAILS.includes(user.email);
 
     // Admin-only features
     document.querySelectorAll('[data-auth="admin"]').forEach(el => {
@@ -415,7 +415,8 @@ function renderCommentSection(postId, user) {
                 item.style.marginLeft = `${depth * 20}px`;
                 item.dataset.id = c.id;
 
-                const canDelete = user.isAdmin || (c.authorId === user.uid);
+                const canDelete = ADMIN_EMAILS.includes(user.email) || (c.authorId === user.uid);
+
 
                 if (c.deleted) {
                     if (byParent[c.id] && byParent[c.id].length > 0) {

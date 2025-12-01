@@ -22,9 +22,7 @@ import {
     getAllBlogPosts,
     addComment,
     listenToComments,
-    deleteComment,
-    addMediaPost,
-    cleanupDeletedComments
+    deleteComment
 } from "./firebase.js";
 
 // ================ UI Toggles, Event Listeners, DOM ================
@@ -308,24 +306,29 @@ function renderBlogPost(postId, postData, user) {
     if (postData.pinned) item.dataset.pinned = "true";
 
     item.innerHTML = `
-      <div class="media-actions hidden" data-auth="required">
-        <button class="pin-btn">📌</button>
-        <button class="edit-btn">✏️</button>
-        <button class="delete-btn">🗑️</button>
+    <div class="media-actions hidden" data-auth="required">
+      <button class="pin-btn">📌</button>
+      <button class="edit-btn">✏️</button>
+      <button class="delete-btn">🗑️</button>
     </div>
-      <h3 class="media-title">${postData.title}</h3>
-      <p class="media-date">${postData.date}</p>
-      <a href="${postData.link}" target="_blank">`
+    <h3 class="media-title">${postData.title}</h3>
+    <p class="media-date">${postData.date}</p>
+    <a href="${postData.link}" target="_blank">`;
 
-    for (let i = 0; i < postData.images.length; i++) {
-        item.innerHTML += `
+    // Partner’s image loop
+    if (Array.isArray(postData.images)) {
+        for (let i = 0; i < postData.images.length; i++) {
+            item.innerHTML += `
         <figure>
-            <img src="${postData.images[i]}" alt="Image">
-            <figcaption>Figure ${i + 1}</figcaption></figure>`;
+          <img src="${postData.images[i]}" alt="Image">
+          <figcaption>Figure ${i + 1}</figcaption>
+        </figure>`;
+        }
     }
+
     item.innerHTML += `</a><br><p class="media-description">${postData.description}</p>`;
 
-    // Add comment section
+    // Your comment section
     const commentsEl = document.createElement("div");
     commentsEl.classList.add("comments");
     commentsEl.dataset.postId = postId;
@@ -345,21 +348,18 @@ function renderBlogPost(postId, postData, user) {
     pinBtn.addEventListener("click", async () => {
         const currentlyPinned = item.dataset.pinned === "true";
         const newPinned = await togglePin(postId, currentlyPinned);
-
         postData.pinned = newPinned;
         item.dataset.pinned = newPinned ? "true" : "false";
 
-        // Re-sort DOM
         container.removeChild(item);
         if (newPinned) {
             container.insertBefore(item, container.firstChild);
         } else {
             container.appendChild(item);
         }
-
         showToast(`Post "${postData.title}" ${newPinned ? "pinned" : "unpinned"}!`);
     });
-    // Wire up threaded comments
+
     renderCommentSection(postId, user);
 }
 
@@ -369,13 +369,14 @@ async function loadBlogPosts(user) {
         snapshot.forEach((doc) => renderBlogPost(doc.id, doc.data(), user));
         toggleAuthElements(user);
     } catch (err) {
-        console.error("Error loading posts:", err);
         const container = document.getElementById("blogContainer");
         if (container) container.innerHTML = "<p>Failed to load posts.</p>";
     }
 }
 
-export function renderCommentSection(postId, user) {
+
+// ================ Comments ================
+function renderCommentSection(postId, user) {
     const postEl = document.querySelector(`.media-item[data-id="${postId}"]`);
     if (!postEl) return;
 
@@ -383,7 +384,6 @@ export function renderCommentSection(postId, user) {
     const form = commentsEl.querySelector(".comment-form");
     const list = commentsEl.querySelector(".comment-list");
 
-    // Handle new top-level comment
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const text = form.querySelector("textarea").value.trim();

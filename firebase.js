@@ -100,8 +100,15 @@ export async function deletePost(postId) {
 export async function togglePin(postId, currentlyPinned) {
     const postRef = doc(db, "mediaPosts", postId);
     const newPinned = !currentlyPinned;
-    await updateDoc(postRef, { pinned: newPinned });
+    await updateDoc(postRef, {pinned: newPinned});
     return newPinned;
+}
+
+export async function addMediaPost(data) {
+    return await addDoc(collection(db, "mediaPosts"), {
+        ...data,
+        createdAt: serverTimestamp()
+    });
 }
 
 // Current blog posts
@@ -134,8 +141,59 @@ export async function deleteBlogPost(postId) {
 export async function toggleBlogPin(postId, currentlyPinned) {
     const postRef = doc(db, "projectBlog2025", postId);
     const newPinned = !currentlyPinned;
-    await updateDoc(postRef, { pinned: newPinned });
+    await updateDoc(postRef, {pinned: newPinned});
     return newPinned;
+}
+
+// =================== Comments ===================
+export async function addComment(postId, user, text, parentId = null) {
+    const localPart = user.email.split("@")[0];
+    return await addDoc(collection(db, "posts", postId, "comments"), {
+        authorId: user.uid,
+        authorName: user.displayName || localPart,
+        text,
+        timestamp: serverTimestamp(),
+        parentId,
+        deleted: false
+    });
+}
+
+export function listenToComments(postId, callback) {
+    const q = query(
+        collection(db, "posts", postId, "comments"),
+        orderBy("timestamp", "asc")
+    );
+    return onSnapshot(q, callback);
+}
+
+export async function deleteComment(postId, commentId) {
+    // Soft delete: mark as deleted, preserve replies
+    await updateDoc(doc(db, "posts", postId, "comments", commentId), {
+        deleted: true,
+        text: "[deleted]"
+    });
+}
+
+export async function cleanupDeletedComments(postId) {
+    const commentsRef = collection(db, "posts", postId, "comments");
+    const snapshot = await getDocs(commentsRef);
+
+    const comments = {};
+    snapshot.forEach(docSnap => {
+        comments[docSnap.id] = {id: docSnap.id, ...docSnap.data()};
+    });
+
+    const hasChildren = new Set();
+    Object.values(comments).forEach(c => {
+        if (c.parentId) hasChildren.add(c.parentId);
+    });
+
+    for (const c of Object.values(comments)) {
+        if (c.deleted && !hasChildren.has(c.id)) {
+            await deleteDoc(doc(db, "posts", postId, "comments", c.id));
+            console.log("Deleted orphaned comment:", c.id);
+        }
+    }
 }
 
 // Contact Functions

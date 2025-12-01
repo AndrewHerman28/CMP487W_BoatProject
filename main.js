@@ -546,7 +546,7 @@ async function showAdminFeatures() {
     const email = document.getElementById("email")?.value;
     const pass = document.getElementById("password")?.value;
 
-    if (email === CLIENT_EMAIL) {
+    if (email === ADMIN_EMAIL) {
         try {
             const result = await checkAdminLogin(auth, email, pass);
             if (result) {

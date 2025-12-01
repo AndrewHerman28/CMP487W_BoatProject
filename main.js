@@ -26,7 +26,6 @@ import {
     addMediaPost,
     cleanupDeletedComments
 } from "./firebase.js";
-import {renderCommentSection} from "./main";
 
 // ================ UI Toggles, Event Listeners, DOM ================
 function setupLoginToggle() {

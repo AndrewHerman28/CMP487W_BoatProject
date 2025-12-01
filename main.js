@@ -280,19 +280,26 @@ function renderBlogPost(postId, postData, user) {
     <p class="media-date">${postData.date}</p>
   `;
 
-    // Optional link/images
-    if (postData.link) {
-        html += `<a href="${postData.link}" target="_blank">`;
-        if (Array.isArray(postData.images)) {
-            for (let i = 0; i < postData.images.length; i++) {
-                html += `
-          <figure>
-            <img src="${postData.images[i]}" alt="Image">
-            <figcaption>Figure ${i + 1}</figcaption>
-          </figure>`;
-            }
-        }
-        html += `</a>`;
+    // // Optional link/images
+    // if (postData.link) {
+    //     html += `<a href="${postData.link}" target="_blank">`;
+    //     if (Array.isArray(postData.images)) {
+    //         for (let i = 0; i < postData.images.length; i++) {
+    //             html += `
+    //       <figure>
+    //         <img src="${postData.images[i]}" alt="Image">
+    //         <figcaption>Figure ${i + 1}</figcaption>
+    //       </figure>`;
+    //         }
+    //     }
+    //     html += `</a>`;
+    // }
+    if (postData.images && Array.isArray(postData.images)) {
+        postData.images.forEach((img, i) => {
+            html += `<figure><img src="${img}" alt="Image"><figcaption>Figure ${i + 1}</figcaption></figure>`;
+        });
+    } else if (postData.image) {
+        html += `<img src="${postData.image}" alt="${postData.title}">`;
     }
 
     html += `<p class="media-description">${postData.description}</p>`;

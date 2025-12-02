@@ -167,15 +167,14 @@ function setupPostForm() {
         const date = document.getElementById("post_date").value;
         const link = document.getElementById("post_link").value;
         const content = document.getElementById("post_content").value;
-        const imageFile = document.getElementById("post_img").files[0];
+        const imageUrl = document.getElementById("post_img").value.trim();
 
-        if (!imageFile) {
-            document.getElementById("postMessage").innerText = "Please select an image.";
+        if (!imageUrl) {
+            document.getElementById("postMessage").innerText = "Please paste an image URL.";
             return;
         }
 
         try {
-            const imageUrl = await uploadImage(imageFile, "media");
             await createPost({title, date, link, content, image: imageUrl});
             showToast("Blog post created successfully!");
             postForm.reset();

@@ -333,7 +333,7 @@ function renderBlogPost(postId, postData, user) {
     } else {
         item.innerHTML += `<span></span>`;
     }
-    
+
     // Handle multiple images
     if (Array.isArray(postData.images)) {
         for (let i = 0; i < postData.images.length; i++) {
@@ -445,6 +445,24 @@ function renderCommentSection(postId, user) {
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
+        if (!user) {
+            const loginModal = document.getElementById("loginModal");
+            const closeBtn = document.getElementById("closeLoginModal");
+            const goToLogin = document.getElementById("goToLogin");
+
+            // Show modal (your CSS uses .show to flex-center)
+            loginModal.classList.add("show");
+
+            closeBtn.onclick = () => {
+                loginModal.classList.remove("show");
+            };
+
+            goToLogin.onclick = () => {
+                window.location.href = "login.html";
+            };
+
+            return;
+        }
         const text = form.querySelector("textarea").value.trim();
         if (!text) return;
         await addComment(postId, user, text, null);
@@ -624,6 +642,33 @@ function showAdminFeatures(user) {
     }
 }
 
+// =================== Helper Functions ==============
+function highlightMatches(element, query) {
+    if (!element || !query) return;
+
+    element.querySelectorAll(".highlight-text").forEach(span => {
+        span.replaceWith(span.textContent);
+    });
+
+    const regex = new RegExp(`(${query})`, "gi");
+
+    // Use a TreeWalker to find text nodes
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+    }
+
+    textNodes.forEach(node => {
+        const text = node.nodeValue;
+        if (text.toLowerCase().includes(query.toLowerCase())) {
+            const span = document.createElement("span");
+            span.innerHTML = text.replace(regex, `<span class="highlight-text">$1</span>`);
+            node.parentNode.replaceChild(span, node);
+        }
+    });
+}
+
 
 // ================ DOMContentLoaded Setup ================
 document.addEventListener("DOMContentLoaded", () => {
@@ -655,16 +700,6 @@ document.addEventListener("DOMContentLoaded", () => {
             loadContacts(user, getAllContacts21Pro, "Project Contacts 2021");
         });
     }
-
-    if (document.getElementById("blogContainer")) {
-        console.log("✅ Blog page detected, attaching auth listener");
-
-        watchAuthState((user) => {
-            console.log("Auth state changed:", user ? user.email : "not logged in");
-            loadBlogPosts(user);
-        });
-    }
-
 
     watchAuthState((user) => {
         if (user) showAdminFeatures(user);
@@ -739,5 +774,55 @@ document.addEventListener("DOMContentLoaded", () => {
             await handleNewBlogPost();
         });
     }
+
+    const searchInput = document.getElementById("searchBar");
+    const searchBtn = document.getElementById("searchBtn");
+
+    if (searchInput && searchBtn) {
+        searchBtn.addEventListener("click", () => {
+            const query = searchInput.value.trim();
+            if (query) {
+                // Redirect to blog page with query string
+                window.location.href = `blog.html?query=${encodeURIComponent(query)}`;
+            }
+        });
+    }
+
+    if (document.getElementById("blogContainer")) {
+        watchAuthState(async (user) => {
+            await loadBlogPosts(user); // load posts once
+
+            const params = new URLSearchParams(window.location.search);
+            const query = params.get("query");
+
+            if (query) {
+                const blogContainer = document.getElementById("blogContainer");
+                const items = blogContainer.querySelectorAll(".media-item");
+
+                let firstMatchSpan = null;
+                const regex = new RegExp(`(${query})`, "gi");
+
+                items.forEach(item => {
+                    highlightMatches(item.querySelector(".media-title"), query);
+                    highlightMatches(item.querySelector(".media-description"), query);
+                    highlightMatches(item.querySelector("figcaption"), query);
+                    highlightMatches(item.querySelector(".comments"), query);
+
+                    if (!firstMatchSpan) {
+                        firstMatchSpan = item.querySelector(".highlight-text");
+                    }
+                });
+
+                // Scroll directly to the first highlighted text
+                if (firstMatchSpan) {
+                    setTimeout(() => {
+                        firstMatchSpan.scrollIntoView({behavior: "smooth", block: "center"});
+                    }, 50);
+                }
+            }
+        });
+    }
+
+
 });
 

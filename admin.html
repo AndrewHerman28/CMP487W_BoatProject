@@ -3,57 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | PSU Abington Boat Project</title>
+    <title>Admin Upload | PSU Abington Boat Project</title>
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="firebase.js" defer></script>
     <script type="module" src="main.js" defer></script>
 </head>
 
+<body>
+
 <header>
     <nav class="navbar">
-        <h1 class="logo">Post</h1>
+        <h1 class="logo">Admin Upload</h1>
+
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
             <li><a href="blog.html">Blog</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="media.html">Media</a></li>
-            <li><a href="admin.html" id="uploadLink" data-auth="admin" class="hidden">Upload</a></li>
+
+            <!-- Admin-only link -->
+            <li>
+                <a href="admin.html" id="uploadLink" data-auth="admin" class="hidden">
+                    Upload
+                </a>
+            </li>
+
             <li><a href="#" id="authLink">Login</a></li>
         </ul>
     </nav>
-    <!-- Logout Confirmation Modal -->
+
+    <!-- Logout confirmation modal -->
     <div id="logoutModal" class="modal">
         <div class="modal-content">
             <p>Are you sure you want to sign out?</p>
+
             <button id="confirmLogout">Yes, Sign Out</button>
             <button id="cancelLogout">Cancel</button>
         </div>
     </div>
 </header>
 
-<main id="content-area">
+
+<main id="content-area" data-auth="admin" class="hidden">
+    <!-- Admin banner -->
+    <div id="adminBanner" class="hidden"></div>
+
     <div class="auth-wrapper">
         <div class="login-container">
-            <form id="postForm" method="POST">
+
+            <!-- ================= Media Upload ================= -->
+            <form id="postForm">
                 <h2>Upload Media</h2>
+
                 <input type="text" id="post_header" placeholder="Title" required>
-                <input type="text" id="post_date" placeholder="Date" required>
-                <input type="text" id="post_link" placeholder="Link" required>
-                <textarea id="post_content" placeholder="Content" required></textarea>
-                <input type="file" id="post_img" accept="image/*">
-                <button type="submit" id="uploadMedia">Upload Post</button>
+
+                <input type="date" id="post_date" required>
+
+                <input type="url" id="post_link" placeholder="External Link">
+
+                <textarea id="post_content"
+                          placeholder="Post Description"
+                          required></textarea>
+
+                <input type="file"
+                       id="post_img"
+                       accept="image/*"
+                       required>
+
+                <button type="submit" id="uploadMedia">
+                    Upload Post
+                </button>
+
                 <p id="postMessage"></p>
             </form>
 
-            <div>
-                <form id="contactForm" method="POST">
-                    <h2>Upload Contact</h2>
-                    <input type="text" id="contact_name" placeholder="Name" required/>
-                    <input type="text" id="contact_des" placeholder="Description (optional)"/>
-                    <input type="text" id="contact_link" placeholder="Link (optional)"/>
-                    <button type="submit" id="uploadContact">Upload Contact Information</button>
-                </form>
-            </div>
+
+            <!-- ================= Contact Upload ================= -->
+            <form id="contactForm">
+                <h2>Upload Contact</h2>
+
+                <input type="text"
+                       id="contact_name"
+                       placeholder="Name"
+                       required>
+
+                <input type="text"
+                       id="contact_des"
+                       placeholder="Description">
+
+                <input type="url"
+                       id="contact_link"
+                       placeholder="Link">
+
+                <button type="submit" id="uploadContact">
+                    Upload Contact Information
+                </button>
+
+                <p id="contactMessage"></p>
+            </form>
+
+
+            <!-- ================= Blog Upload ================= -->
+            <form id="blogForm">
+                <h2>Create Blog Post</h2>
+
+                <input type="text"
+                       id="titleInput"
+                       placeholder="Title"
+                       required>
+
+                <textarea id="descInput"
+                          placeholder="Post Content"
+                          required></textarea>
+
+                <input type="file"
+                       id="imageInput"
+                       accept="image/*">
+
+                <button type="submit">
+                    Create Blog Post
+                </button>
+
+                <p id="blogMessage"></p>
+            </form>
         </div>
     </div>
 </main>
+
+</body>
+</html>

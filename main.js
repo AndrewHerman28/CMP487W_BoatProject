@@ -259,7 +259,7 @@ function renderPost(postId, postData, user) {
       <a href="${postData.link}" target="_blank">
         <img src="${postData.image}" alt="${postData.title}">
       </a>
-      <p class="media-description">${postData.content}</p>
+      <p class="media-description">${postData.description}</p>
 
     `;
 

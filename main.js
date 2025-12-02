@@ -13,11 +13,13 @@ import {
     updateContact,
     deleteContact,
     togglePin,
+    toggleBlogPin,
     updatePost,
     deletePost,
     uploadImage,
     checkAdminLogin,
     auth,
+    createBlogPost,
     ADMIN_EMAILS,
     getAllBlogPosts,
     addComment,
@@ -173,13 +175,14 @@ function setupPostForm() {
         }
 
         try {
-            const imageUrl = await uploadImage(imageFile);
+            const imageUrl = await uploadImage(imageFile, "media");
             await createPost({title, date, link, content, image: imageUrl});
-            document.getElementById("postMessage").innerText = "Post uploaded successfully!";
+            showToast("Blog post created successfully!");
             postForm.reset();
         } catch (err) {
             console.error("Post error:", err);
-            document.getElementById("postMessage").innerText = "Error uploading post.";
+            showToast("Blog post failed!");
+
         }
     });
 }
@@ -257,7 +260,8 @@ function renderPost(postId, postData, user) {
       <a href="${postData.link}" target="_blank">
         <img src="${postData.image}" alt="${postData.title}">
       </a>
-      <p class="media-description">${postData.description}</p>
+      <p class="media-description">${postData.content}</p>
+
     `;
 
     container.appendChild(item);
@@ -312,23 +316,32 @@ function renderBlogPost(postId, postData, user) {
       <button class="delete-btn">🗑️</button>
     </div>
     <h3 class="media-title">${postData.title}</h3>
-    <p class="media-date">${postData.date}</p>
-    <a href="${postData.link}" target="_blank">`;
+    <p class="media-date">${postData.date ?? ""}</p>
+    <a href="${postData.link ?? "#"}" target="_blank">`;
 
-    // Partner’s image loop
+    // ✅ Handle single image
+    if (postData.image) {
+        item.innerHTML += `
+      <figure>
+        <img src="${postData.image}" alt="${postData.title}">
+        <figcaption>Image</figcaption>
+      </figure>`;
+    }
+
+    // ✅ Handle multiple images
     if (Array.isArray(postData.images)) {
         for (let i = 0; i < postData.images.length; i++) {
             item.innerHTML += `
         <figure>
-          <img src="${postData.images[i]}" alt="Image">
+          <img src="${postData.images[i]}" alt="Image ${i + 1}">
           <figcaption>Figure ${i + 1}</figcaption>
         </figure>`;
         }
     }
 
-    item.innerHTML += `</a><br><p class="media-description">${postData.description}</p>`;
+    item.innerHTML += `</a><br><p class="media-description">${postData.description ?? ""}</p>`;
 
-    // Your comment section
+    // Comment section
     const commentsEl = document.createElement("div");
     commentsEl.classList.add("comments");
     commentsEl.dataset.postId = postId;
@@ -344,10 +357,11 @@ function renderBlogPost(postId, postData, user) {
 
     container.appendChild(item);
 
+    // Pin button logic
     const pinBtn = item.querySelector(".pin-btn");
     pinBtn.addEventListener("click", async () => {
         const currentlyPinned = item.dataset.pinned === "true";
-        const newPinned = await togglePin(postId, currentlyPinned);
+        const newPinned = await toggleBlogPin(postId, currentlyPinned);
         postData.pinned = newPinned;
         item.dataset.pinned = newPinned ? "true" : "false";
 
@@ -363,6 +377,7 @@ function renderBlogPost(postId, postData, user) {
     renderCommentSection(postId, user);
 }
 
+
 async function loadBlogPosts(user) {
     try {
         const snapshot = await getAllBlogPosts();
@@ -372,6 +387,27 @@ async function loadBlogPosts(user) {
         const container = document.getElementById("blogContainer");
         if (container) container.innerHTML = "<p>Failed to load posts.</p>";
     }
+}
+
+async function handleNewBlogPost() {
+    const title = document.getElementById("titleInput").value;
+    const description = document.getElementById("descInput").value;
+    const fileInput = document.getElementById("imageInput");
+    const file = fileInput.files[0];
+
+    let imageUrl = "";
+    if (file) {
+        imageUrl = await uploadImage(file, "media"); // returns download URL
+    }
+
+    await createBlogPost({
+        title,
+        description,
+        image: imageUrl,
+        pinned: false
+    });
+
+    alert("Blog post created!");
 }
 
 
@@ -543,45 +579,49 @@ async function loadContacts(user, getContactsFn, headingText) {
 
 
 // ================ Admin Features ================
-async function showAdminFeatures() {
-    const email = document.getElementById("email")?.value;
-    const pass = document.getElementById("password")?.value;
+function showAdminFeatures(user) {
+    // Admin or Client
+    if (user && ADMIN_EMAILS.includes(user.email)) {
+        console.log("Admin login successful:", user.email);
 
-    if (email === ADMIN_EMAIL) {
-        try {
-            const result = await checkAdminLogin(auth, email, pass);
-            if (result) {
-                console.log("Admin Signed In");
-                const adminInterface = document.getElementById("adminInterface");
-                if (adminInterface) adminInterface.style.display = "flex";
-                document.querySelectorAll(".contact-actions").forEach(el => {
-                    el.style.display = "flex";
-                });
-            }
-        } catch (err) {
-            console.error("Admin login failed:", err);
+        // Make hidden elements visible
+        document.querySelectorAll("[data-auth='required']").forEach(el => {
+            el.classList.remove("hidden");
+        });
+
+        //enable upload buttons, show moderation tools, etc.
+        const adminBanner = document.getElementById("adminBanner");
+        if (adminBanner) {
+            adminBanner.textContent = `Logged in as Admin: ${user.email}`;
+            adminBanner.classList.remove("hidden");
         }
+    } else {
+        console.error("Admin login failed: unauthorized user");
+        alert("You are not authorized to access admin features.");
     }
 }
 
 
 // ================ DOMContentLoaded Setup ================
 document.addEventListener("DOMContentLoaded", () => {
+    // ===== Setup =====
     setupLoginForm();
     setupRegisterForm();
     setupPostForm();
     setupLoginToggle();
     setupLogoutButton();
     initAuthUI();
-    showAdminFeatures();
 
     const forgotP = document.getElementById("forgotPassword");
     if (forgotP) forgotP.addEventListener("click", handleForgotPassword);
 
+    // ===== Page Routes =====
     const path = window.location.pathname;
+
     if (path.includes("media.html")) {
         watchAuthState((user) => loadPosts(user));
     }
+
     if (path.includes("contact.html")) {
         watchAuthState((user) => {
             loadContacts(user, getAllContacts25, "Contacts 2025");
@@ -589,72 +629,91 @@ document.addEventListener("DOMContentLoaded", () => {
             loadContacts(user, getAllContacts21Pro, "Project Contacts 2021");
         });
     }
-    if (path.includes("blog.html")) {
-        watchAuthState((user) => loadBlogPosts(user))
-    }
-    ;
 
+    if (path.includes("blog.html")) {
+        watchAuthState((user) => loadBlogPosts(user));
+    }
+
+    watchAuthState((user) => {
+        if (user) showAdminFeatures(user);
+    });
+
+    // ===== Buttons =====
     const btn = document.getElementById("currentProjectBtn");
     if (btn) {
         btn.addEventListener("click", () => {
             window.location.href = "blog.html";
         });
     }
-});
 
-// ================ Delegated Click Handler ================
-document.addEventListener("DOMContentLoaded", () => {
+    // ===== Delegated Media Buttons =====
     const container = document.getElementById("mediaContainer");
-    if (!container) return;
+    if (container) {
+        container.addEventListener("click", async (e) => {
+            const item = e.target.closest(".media-item");
+            if (!item) return;
+            const postId = item.dataset.id;
 
-    container.addEventListener("click", async (e) => {
-        const item = e.target.closest(".media-item");
-        if (!item) return;
-        const postId = item.dataset.id;
-
-        if (e.target.classList.contains("delete-btn")) {
-            try {
-                await deletePost(postId);
-                item.remove();
-            } catch (err) {
-                alert("You don’t have permission to delete this post.");
+            if (e.target.classList.contains("delete-btn")) {
+                try {
+                    await deletePost(postId);
+                    item.remove();
+                } catch {
+                    alert("You don’t have permission to delete this post.");
+                }
             }
-        }
 
-        if (e.target.classList.contains("edit-btn")) {
-            console.log("Edit post:", postId);
-            // TODO: open edit modal and call updatePost(postId, { ... })
-        }
-
-        if (e.target.classList.contains("pin-btn")) {
-            try {
-                const currentlyPinned = item.dataset.pinned === "true";
-                const newPinned = await togglePin(postId, currentlyPinned);
-
-                item.dataset.pinned = newPinned ? "true" : "false";
-
-                // Show styled modal
-                const pinModal = document.getElementById("pinModal");
-                const pinMessage = document.getElementById("pinMessage");
-                const closeBtn = document.getElementById("closePinModal");
-
-                pinMessage.innerText = `Post "${item.querySelector(".media-title").innerText}" has been ${newPinned ? "pinned" : "unpinned"}.`;
-                pinModal.style.display = "block";
-
-                // Manual close
-                closeBtn.onclick = () => {
-                    pinModal.style.display = "none";
-                };
-
-                // Auto-dismiss after 3 seconds
-                setTimeout(() => {
-                    pinModal.style.display = "none";
-                }, 3000);
-            } catch (err) {
-                alert("You don’t have permission to change pin status.");
+            if (e.target.classList.contains("edit-btn")) {
+                console.log("Edit post:", postId);
+                // TODO: open edit modal and call updatePost(postId, { ... })
             }
-        }
 
+            if (e.target.classList.contains("pin-btn")) {
+                try {
+                    const currentlyPinned = item.dataset.pinned === "true";
+                    const newPinned = await togglePin(postId, currentlyPinned);
 
-    });
+                    item.dataset.pinned = newPinned ? "true" : "false";
+
+                    const pinModal = document.getElementById("pinModal");
+                    const pinMessage = document.getElementById("pinMessage");
+                    const closeBtn = document.getElementById("closePinModal");
+
+                    pinMessage.innerText =
+                        `Post "${item.querySelector(".media-title").innerText}" has been `
+                        + `${newPinned ? "pinned" : "unpinned"}.`;
+
+                    pinModal.style.display = "block";
+
+                    closeBtn.onclick = () => {
+                        pinModal.style.display = "none";
+                    };
+
+                    setTimeout(() => {
+                        pinModal.style.display = "none";
+                    }, 3000);
+                } catch {
+                    alert("You don’t have permission to change pin status.");
+                }
+            }
+        });
+    }
+
+    // ===== Blog Form Guard =====
+    const blogForm = document.getElementById("blogForm");
+    if (blogForm) {
+        blogForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            await handleNewBlogPost();
+        });
+    }
 });
+
+
+const blogForm = document.getElementById("blogForm");
+if (blogForm) {
+    blogForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await handleNewBlogPost();
+    });
+}

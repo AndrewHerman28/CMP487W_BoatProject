@@ -133,7 +133,7 @@ export async function createBlogPost(data) {
 export async function getAllBlogPosts() {
     const q = query(
         collection(db, "projectBlog2025"),
-        orderBy("createdAt", "desc")
+        orderBy("date", "desc")
     );
     return await getDocs(q);
 }

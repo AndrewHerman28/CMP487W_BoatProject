@@ -1,3 +1,4 @@
+
 import {
     signInUser,
     registerUser,
@@ -10,6 +11,7 @@ import {
     getAllContacts21,
     getAllContacts21Pro,
     addContact,
+    createBlogPost,
     updateContact,
     deleteContact,
     togglePin,
@@ -155,7 +157,7 @@ function setupRegisterForm() {
     if (registerForm) registerForm.addEventListener("submit", handleRegister);
 }
 
-function setupPostForm() {
+function setupPostForm() { // Does not upload images, only text; removed image parameter
     const postForm = document.getElementById("postForm");
     if (!postForm) return;
 
@@ -167,14 +169,15 @@ function setupPostForm() {
         const content = document.getElementById("post_content").value;
         const imageFile = document.getElementById("post_img").files[0];
 
-        if (!imageFile) {
-            document.getElementById("postMessage").innerText = "Please select an image.";
-            return;
-        }
+        // Commenting out to check if post form works without image
+        // if (!imageFile) {
+            // document.getElementById("postMessage").innerText = "Please select an image.";
+            // return;
+        // }
 
         try {
-            const imageUrl = await uploadImage(imageFile);
-            await createPost({title, date, link, content, image: imageUrl});
+            // const imageUrl = await uploadImage(imageFile);
+            await createPost({title, date, link, content});
             document.getElementById("postMessage").innerText = "Post uploaded successfully!";
             postForm.reset();
         } catch (err) {
@@ -564,6 +567,49 @@ async function showAdminFeatures() {
     }
 }
 
+function adminContactUpload() {
+    const contactForm = document.getElementById("contactForm");
+    if (!contactForm) return;
+
+    contactForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("contact_name").value;
+        const link = document.getElementById("contact_link").value;
+        const des = document.getElementById("contact_des").value;
+
+        try {
+            await addContact(name, link, des);
+            document.getElementById("contactMessage").innerText = "Contact uploaded successfully!";
+            contactForm.reset();
+        } catch (err) {
+            console.error("Contact upload error:", err);
+            document.getElementById("contactMessage").innerText = "Error uploading contact.";
+        }
+    });
+}
+
+function adminBlogUpload() {
+    const blogForm = document.getElementById("blogForm");
+    if (!blogForm) return;
+
+    blogForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const title = document.getElementById("titleInput").value;
+        const des = document.getElementById("descInput").value;
+        
+        try {
+            await createBlogPost(title, des);
+            document.getElementById("blogMessage").innerText = "Blog uploaded successfully!";
+            contactForm.reset();
+        } catch (err) {
+            console.error("Blog upload error:", err);
+            document.getElementById("blogMessage").innerText = "Error uploading blog.";
+        }
+    });
+}
+
 
 // ================ DOMContentLoaded Setup ================
 document.addEventListener("DOMContentLoaded", () => {
@@ -574,6 +620,8 @@ document.addEventListener("DOMContentLoaded", () => {
     setupLogoutButton();
     initAuthUI();
     showAdminFeatures();
+    adminContactUpload();
+    adminBlogUpload();
 
     const forgotP = document.getElementById("forgotPassword");
     if (forgotP) forgotP.addEventListener("click", handleForgotPassword);

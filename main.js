@@ -260,6 +260,9 @@ function renderPost(postId, postData, user) {
         <img src="${postData.image}" alt="${postData.title}">
       </a>
       <p class="media-description"> ${postData.description ?? postData.content ?? ""} </p>
+
+
+
     `;
 
     container.appendChild(item);
@@ -300,6 +303,8 @@ async function loadPosts(user) {
 // ================ Render/Load Current Blog Posts ================
 
 function renderBlogPost(postId, postData, user) {
+    console.log("✅ renderBlogPost called:", postId, postData);
+
     const container = document.getElementById("blogContainer");
     const item = document.createElement("div");
     item.classList.add("media-item");
@@ -328,18 +333,17 @@ function renderBlogPost(postId, postData, user) {
     } else {
         item.innerHTML += `<span></span>`;
     }
-
-
+    
     // Handle multiple images
-    // if (Array.isArray(postData.images)) {
-    //     for (let i = 0; i < postData.images.length; i++) {
-    //         item.innerHTML += `
-    //     <figure>
-    //       <img src="${postData.images[i]}" alt="Image ${i + 1}">
-    //       <figcaption>Figure ${i + 1}</figcaption>
-    //     </figure>`;
-    //     }
-    // }
+    if (Array.isArray(postData.images)) {
+        for (let i = 0; i < postData.images.length; i++) {
+            item.innerHTML += `
+        <figure>
+          <img src="${postData.images[i]}" alt="Image ${i + 1}">
+          <figcaption>Figure ${i + 1}</figcaption>
+        </figure>`;
+        }
+    }
 
     item.innerHTML += `</a><br><p class="media-description">
   ${postData.description ?? postData.content ?? ""}
@@ -384,15 +388,29 @@ function renderBlogPost(postId, postData, user) {
 
 
 async function loadBlogPosts(user) {
+    console.log("Loading blog posts... user =", user?.email);
+
     try {
         const snapshot = await getAllBlogPosts();
-        snapshot.forEach((doc) => renderBlogPost(doc.id, doc.data(), user));
+
+        console.log("Blog snapshot size:", snapshot.size);
+
+        snapshot.forEach((doc) => {
+            console.log("Rendering doc:", doc.id, doc.data());
+            renderBlogPost(doc.id, doc.data(), user);
+        });
+
         toggleAuthElements(user);
     } catch (err) {
+        console.error("❌ Error loading posts:", err);
+
         const container = document.getElementById("blogContainer");
-        if (container) container.innerHTML = "<p>Failed to load posts.</p>";
+        if (container) {
+            container.innerHTML = "<p style='color:red'>Failed to load posts - see console</p>";
+        }
     }
 }
+
 
 async function handleNewBlogPost() {
     const title = document.getElementById("titleInput").value;
@@ -609,6 +627,9 @@ function showAdminFeatures(user) {
 
 // ================ DOMContentLoaded Setup ================
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("✅ main.js loaded");
+    console.log("Path:", window.location.pathname);
+    console.log("Blog container exists:", !!document.getElementById("blogContainer"));
     // ===== Setup =====
     setupLoginForm();
     setupRegisterForm();
@@ -635,9 +656,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    if (path.includes("blog.html")) {
-        watchAuthState((user) => loadBlogPosts(user));
+    if (document.getElementById("blogContainer")) {
+        console.log("✅ Blog page detected, attaching auth listener");
+
+        watchAuthState((user) => {
+            console.log("Auth state changed:", user ? user.email : "not logged in");
+            loadBlogPosts(user);
+        });
     }
+
 
     watchAuthState((user) => {
         if (user) showAdminFeatures(user);
@@ -714,11 +741,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-
-const blogForm = document.getElementById("blogForm");
-if (blogForm) {
-    blogForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        await handleNewBlogPost();
-    });
-}

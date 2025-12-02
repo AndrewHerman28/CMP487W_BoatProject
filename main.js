@@ -157,7 +157,7 @@ function setupRegisterForm() {
     if (registerForm) registerForm.addEventListener("submit", handleRegister);
 }
 
-function setupPostForm() { // Does not upload images, only text; removed image parameter
+function setupPostForm() { 
     const postForm = document.getElementById("postForm");
     if (!postForm) return;
 
@@ -167,17 +167,10 @@ function setupPostForm() { // Does not upload images, only text; removed image p
         const date = document.getElementById("post_date").value;
         const link = document.getElementById("post_link").value;
         const content = document.getElementById("post_content").value;
-        const imageFile = document.getElementById("post_img").files[0];
-
-        // Commenting out to check if post form works without image
-        // if (!imageFile) {
-            // document.getElementById("postMessage").innerText = "Please select an image.";
-            // return;
-        // }
+        const image = document.getElementById("post_img").value;
 
         try {
-            // const imageUrl = await uploadImage(imageFile);
-            await createPost({title, date, link, content});
+            await createPost({title: title, date: date, link: link, description: content, image: image});
             document.getElementById("postMessage").innerText = "Post uploaded successfully!";
             postForm.reset();
         } catch (err) {
@@ -316,7 +309,7 @@ function renderBlogPost(postId, postData, user) {
     </div>
     <h3 class="media-title">${postData.title}</h3>
     <p class="media-date">${postData.date}</p>
-    <a href="${postData.link}" target="_blank">`;
+    <a href="${postData.description}" target="_blank">`; // Changed this line because it was link but blog posts do not have links, have descriptions 
 
     // Partner’s image loop
     if (Array.isArray(postData.images)) {
@@ -579,7 +572,7 @@ function adminContactUpload() {
         const des = document.getElementById("contact_des").value;
 
         try {
-            await addContact(name, link, des);
+            await addContact({name: name, description: des, link: link});
             document.getElementById("contactMessage").innerText = "Contact uploaded successfully!";
             contactForm.reset();
         } catch (err) {
@@ -598,11 +591,14 @@ function adminBlogUpload() {
 
         const title = document.getElementById("titleInput").value;
         const des = document.getElementById("descInput").value;
+        const date = document.getElementById("dateInput").value;
+        const imageString = document.getElementById("imageInput").value;
+        const images = imageString.split(" ");
         
         try {
-            await createBlogPost(title, des);
+            await createBlogPost({title: title, description: des, images: images, date: date});
             document.getElementById("blogMessage").innerText = "Blog uploaded successfully!";
-            contactForm.reset();
+            blogForm.reset();
         } catch (err) {
             console.error("Blog upload error:", err);
             document.getElementById("blogMessage").innerText = "Error uploading blog.";

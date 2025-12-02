@@ -31,51 +31,40 @@
     </div>
 </header>
 
-<main id="content-area">
-    <div class="auth-wrapper">
-        <div class="login-container">
-            <form id="postForm" method="POST">
-                <h2>Upload Media</h2>
-                <input type="text" id="post_header" placeholder="Title" required>
-                <input type="text" id="post_date" placeholder="Date">
-                <input type="text" id="post_link" placeholder="Link" required>
-                <textarea id="post_content" placeholder="Content"></textarea>
-                <input type="file" id="post_img" accept="image/*">
-                <button type="submit" id="uploadMedia">Upload Post</button>
-                <p id="postMessage"></p>
-            </form>
+<main>
+    <div class="form">
+        <form id="postForm" method="POST">
+            <h2>Upload Media</h2>
+            <input type="text" id="post_header" placeholder="Title*" required></input>
+            <input type="text" id="post_date" placeholder="Date"></input>
+            <input type="text" id="post_link" placeholder="Link*" required></input>
+            <input type="text" id="post_content" placeholder="Content"></input>
+            <input type="text" id="post_img" placeholder="Image (only 1)"></input>
+            <button type="submit" id="uploadMedia">Upload Post</button>
+            <p id="postMessage"></p>
+        </form>
+    </div>
 
-            <div>
-                <form id="contactForm" method="POST">
-                    <h2>Upload Contact</h2>
-                    <input type="text" id="contact_name" placeholder="Name" required/>
-                    <input type="text" id="contact_des" placeholder="Description (optional)"/>
-                    <input type="text" id="contact_link" placeholder="Link (optional)"/>
-                    <button type="submit" id="uploadContact">Upload Contact Information</button>
-                <p id="contactMessage"></p>
-                </form>
-            </div>
+    <div class="form">
+        <form id="contactForm" method="POST">
+            <h2>Upload Contact</h2>
+            <input type="text" id="contact_name" placeholder="Name*" required/></input>
+            <input type="text" id="contact_des" placeholder="Description"/></input>
+            <input type="text" id="contact_link" placeholder="Link"/></input>
+            <button type="submit" id="uploadContact">Upload Contact Information</button>
+        <p id="contactMessage"></p>
+        </form>
+    </div>
 
-            <form id="blogForm" method="POST">
-                <h2>Create Blog Post</h2>
-
-                <input type="text"
-                       id="titleInput"
-                       placeholder="Title"
-                       required>
-
-                <textarea id="descInput"
-                          placeholder="Post Content"
-                          required></textarea>
-
-                <input type="file" id="blog_img" accept="image/*">
-
-                <button type="submit">
-                    Create Blog Post
-                </button>
-
-                <p id="blogMessage"></p>
-            </form>
-        </div>
+    <div class="form">
+        <form id="blogForm" method="POST">
+            <h2>Create Blog Post</h2>
+            <input type="text" id="titleInput" placeholder="Title*" required></input>
+            <input type="text" id="descInput" placeholder="Post Content*" required></input>
+            <input type="text" id="imageInput" placeholder="Images (seperate by spaces)"></input>
+            <input type="text" id="dateInput" placeholder="Date"></input>
+            <button type="submit">Create Blog Post</button>
+            <p id="blogMessage"></p>
+        </form>
     </div>
 </main>

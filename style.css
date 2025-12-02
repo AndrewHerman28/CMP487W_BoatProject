@@ -712,3 +712,10 @@ footer {
         align-items: center;
     }
 }
+
+/* CSS for forms in admin upload page*/
+.form {
+    display: inline-block;
+    padding: 50px;
+    justify-content: center;
+}

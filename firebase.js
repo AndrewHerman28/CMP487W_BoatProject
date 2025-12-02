@@ -216,11 +216,9 @@ export async function getAllContacts21Pro() {
     return await getDocs(collection(db, "contactInfo2021_Project"));
 }
 
-export async function addContact(contactName, contactLink, contactDescription) {
+export async function addContact(data) {
     return await addDoc(collection(db, "contactInfo2025"), {
-        name: contactName,
-        link: contactLink,
-        description: contactDescription
+        ...data
     });
 }
 

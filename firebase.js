@@ -1,3 +1,5 @@
+// firebase.js
+
 import {initializeApp} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 import {
     getAuth,
@@ -17,7 +19,6 @@ import {
     deleteDoc,
     doc,
     query,
-    where,
     orderBy,
     onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
@@ -43,11 +44,12 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
 export const ADMIN_EMAILS = [
     "newuser1@gmail.com",
     "ajh7353@psu.edu",
+    "hjt106@psu.edu"
 ];
-
 
 // =================== Auth Helpers ===================
 export async function signInUser(email, password) {
@@ -70,9 +72,14 @@ export function watchAuthState(callback) {
     return onAuthStateChanged(auth, callback);
 }
 
-// Optional admin login helper
-export async function checkAdminLogin(authInstance, email, pass) {
-    return await signInWithEmailAndPassword(authInstance, email, pass);
+export async function checkAdminLogin(email, password) {
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        return userCredential.user;
+    } catch (err) {
+        console.error("Admin login failed:", err);
+        throw err;
+    }
 }
 
 // =================== Firestore Helpers ===================
@@ -83,7 +90,6 @@ export async function createPost(data) {
         createdAt: serverTimestamp()
     });
 }
-
 
 export async function getAllPosts() {
     const q = query(
@@ -116,8 +122,6 @@ export async function addMediaPost(data) {
     });
 }
 
-// Current blog posts
-
 export async function createBlogPost(data) {
     return await addDoc(collection(db, "projectBlog2025"), {
         ...data,
@@ -126,14 +130,14 @@ export async function createBlogPost(data) {
     });
 }
 
-
 export async function getAllBlogPosts() {
     const q = query(
         collection(db, "projectBlog2025"),
-        orderBy("date", "desc")
+        orderBy("createdAt", "desc")
     );
     return await getDocs(q);
 }
+
 
 export async function updateBlogPost(postId, updates) {
     return await updateDoc(doc(db, "projectBlog2025", postId), updates);
@@ -172,7 +176,6 @@ export function listenToComments(postId, callback) {
 }
 
 export async function deleteComment(postId, commentId) {
-    // Soft delete: mark as deleted, preserve replies
     await updateDoc(doc(db, "posts", postId, "comments", commentId), {
         deleted: true,
         text: "[deleted]"
@@ -201,8 +204,7 @@ export async function cleanupDeletedComments(postId) {
     }
 }
 
-// Contact Functions
-
+// =================== Contacts ===================
 export async function getAllContacts25() {
     return await getDocs(collection(db, "contactInfo2025"));
 }
@@ -230,8 +232,16 @@ export async function deleteContact(contactId) {
 }
 
 // =================== Storage Helpers ===================
-export async function uploadImage(file) {
-    const imageRef = ref(storage, `media/${file.name}`);
-    await uploadBytes(imageRef, file);
-    return await getDownloadURL(imageRef);
+export async function uploadImage(file, path = "media") {
+    try {
+        const uniqueName = `${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name}`;
+        const fileRef = ref(storage, `${path}/${uniqueName}`);
+
+        await uploadBytes(fileRef, file);
+        const url = await getDownloadURL(fileRef);
+        return url;
+    } catch (err) {
+        console.error("Image upload failed:", err);
+        throw err;
+    }
 }

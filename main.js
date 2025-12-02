@@ -317,27 +317,34 @@ function renderBlogPost(postId, postData, user) {
     <p class="media-date">${postData.date ?? ""}</p>
     <a href="${postData.link ?? "#"}" target="_blank">`;
 
-    // ✅ Handle single image
+    // Handle single image
     if (postData.image) {
         item.innerHTML += `
       <figure>
         <img src="${postData.image}" alt="${postData.title}">
         <figcaption>Image</figcaption>
-      </figure>`;
+      </figure>
+    `;
+    } else {
+        item.innerHTML += `<span></span>`;
     }
 
-    // ✅ Handle multiple images
-    if (Array.isArray(postData.images)) {
-        for (let i = 0; i < postData.images.length; i++) {
-            item.innerHTML += `
-        <figure>
-          <img src="${postData.images[i]}" alt="Image ${i + 1}">
-          <figcaption>Figure ${i + 1}</figcaption>
-        </figure>`;
-        }
-    }
 
-    item.innerHTML += `</a><br><p class="media-description">${postData.description ?? ""}</p>`;
+    // Handle multiple images
+    // if (Array.isArray(postData.images)) {
+    //     for (let i = 0; i < postData.images.length; i++) {
+    //         item.innerHTML += `
+    //     <figure>
+    //       <img src="${postData.images[i]}" alt="Image ${i + 1}">
+    //       <figcaption>Figure ${i + 1}</figcaption>
+    //     </figure>`;
+    //     }
+    // }
+
+    item.innerHTML += `</a><br><p class="media-description">
+  ${postData.description ?? postData.content ?? ""}
+</p>`;
+
 
     // Comment section
     const commentsEl = document.createElement("div");

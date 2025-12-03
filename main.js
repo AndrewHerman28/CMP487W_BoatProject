@@ -510,8 +510,12 @@ function renderBlogPost(postId, postData, user) {
 
 async function loadBlogPosts(user) {
     try {
+        const container = document.getElementById("blogContainer");
+        if (container) container.innerHTML = ""; // clear before rendering
+
         const snapshot = await getAllBlogPosts();
         snapshot.forEach((doc) => renderBlogPost(doc.id, doc.data(), user));
+
         toggleAuthElements(user);
     } catch (err) {
         console.error("Error loading posts:", err);
@@ -519,6 +523,7 @@ async function loadBlogPosts(user) {
         if (container) container.innerHTML = "<p>Failed to load posts.</p>";
     }
 }
+
 
 // ================ Comments ================
 function renderCommentSection(postId, user) {
@@ -529,31 +534,34 @@ function renderCommentSection(postId, user) {
     const form = commentsEl.querySelector(".comment-form");
     const list = commentsEl.querySelector(".comment-list");
 
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        if (!user) {
-            const loginModal = document.getElementById("loginModal");
-            const closeBtn = document.getElementById("closeLoginModal");
-            const goToLogin = document.getElementById("goToLogin");
+    if (form.dataset.listenrAttached !== "true") {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!user) {
+                const loginModal = document.getElementById("loginModal");
+                const closeBtn = document.getElementById("closeLoginModal");
+                const goToLogin = document.getElementById("goToLogin");
 
-            // Show modal (your CSS uses .show to flex-center)
-            loginModal.classList.add("show");
+                // Show modal (your CSS uses .show to flex-center)
+                loginModal.classList.add("show");
 
-            closeBtn.onclick = () => {
-                loginModal.classList.remove("show");
-            };
+                closeBtn.onclick = () => {
+                    loginModal.classList.remove("show");
+                };
 
-            goToLogin.onclick = () => {
-                window.location.href = "login.html";
-            };
+                goToLogin.onclick = () => {
+                    window.location.href = "login.html";
+                };
 
-            return;
-        }
-        const text = form.querySelector("textarea").value.trim();
-        if (!text) return;
-        await addComment(postId, user, text, null);
-        form.reset();
-    });
+                return;
+            }
+            const text = form.querySelector("textarea").value.trim();
+            if (!text) return;
+            await addComment(postId, user, text, null);
+            form.reset();
+        });
+        form.dataset.listenrAttached = "true"; // Prevent multiple listeners from being attached
+    }
 
     // Listen for all comments
     listenToComments(postId, (snapshot) => {
@@ -776,7 +784,6 @@ function showAdminFeatures(user) {
         });
     } else {
         console.error("Admin login failed: unauthorized user");
-        alert("You are not authorized to access admin features.");
     }
 }
 
@@ -947,15 +954,45 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ===== Blog Page =====
     if (path.includes("blog.html")) {
-        watchAuthState((user) => loadBlogPosts(user));
+        watchAuthState(async (user) => {
+            await loadBlogPosts(user);   // load blogs once
+
+            // After blogs are loaded, run highlight logic
+            const params = new URLSearchParams(window.location.search);
+            const query = params.get("query");
+
+            if (query) {
+                const blogContainer = document.getElementById("blogContainer");
+                const items = blogContainer.querySelectorAll(".media-item");
+
+                let firstMatchSpan = null;
+
+                items.forEach((item) => {
+                    highlightMatches(item.querySelector(".media-title"), query);
+                    highlightMatches(item.querySelector(".media-description"), query);
+                    highlightMatches(item.querySelector("figcaption"), query);
+                    highlightMatches(item.querySelector(".comments"), query);
+
+                    if (!firstMatchSpan) {
+                        firstMatchSpan = item.querySelector(".highlight-text");
+                    }
+                });
+
+                if (firstMatchSpan) {
+                    setTimeout(() => {
+                        firstMatchSpan.scrollIntoView({behavior: "smooth", block: "center"});
+                    }, 50);
+                }
+            }
+        });
     }
 
     // ===== Admin Features =====
     watchAuthState((user) => {
         if (user) showAdminFeatures(user);
     });
-    // Include Daisy’s and Mari’s admin upload helpers
     adminContactUpload();
     adminBlogUpload();
     adminUpload();
@@ -1043,40 +1080,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ===== Blog Highlight =====
-    if (document.getElementById("blogContainer")) {
-        watchAuthState(async (user) => {
-            await loadBlogPosts(user);
-
-            const params = new URLSearchParams(window.location.search);
-            const query = params.get("query");
-
-            if (query) {
-                const blogContainer = document.getElementById("blogContainer");
-                const items = blogContainer.querySelectorAll(".media-item");
-
-                let firstMatchSpan = null;
-
-                items.forEach((item) => {
-                    highlightMatches(item.querySelector(".media-title"), query);
-                    highlightMatches(item.querySelector(".media-description"), query);
-                    highlightMatches(item.querySelector("figcaption"), query);
-                    highlightMatches(item.querySelector(".comments"), query);
-
-                    if (!firstMatchSpan) {
-                        firstMatchSpan = item.querySelector(".highlight-text");
-                    }
-                });
-
-                if (firstMatchSpan) {
-                    setTimeout(() => {
-                        firstMatchSpan.scrollIntoView({behavior: "smooth", block: "center"});
-                    }, 50);
-                }
-            }
-        });
-    }
-
     // ===== Help Modal =====
     const helpModal = document.getElementById("helpModal");
     const helpHeader = document.getElementById("helpHeader");
@@ -1142,4 +1145,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
 

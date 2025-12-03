@@ -1,70 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | PSU Abington Boat Project</title>
-    <link rel="stylesheet" href="style.css">
-    <script type="module" src="firebase.js" defer></script>
-    <script type="module" src="main.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Upload | PSU Abington Boat Project</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="firebase.js" defer></script>
+  <script type="module" src="main.js" defer></script>
 </head>
+<body>
 
 <header>
-    <nav class="navbar">
-        <h1 class="logo">Post</h1>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="contact.html">Contact</a></li>
-            <li><a href="media.html">Media</a></li>
-            <li><a href="admin.html" id="uploadLink" data-auth="admin" class="hidden">Upload</a></li>
-            <li><a href="#" id="authLink">Login</a></li>
-        </ul>
-    </nav>
-    <!-- Logout Confirmation Modal -->
-    <div id="logoutModal" class="modal">
-        <div class="modal-content">
-            <p>Are you sure you want to sign out?</p>
-            <button id="confirmLogout">Yes, Sign Out</button>
-            <button id="cancelLogout">Cancel</button>
-        </div>
+  <nav class="navbar">
+    <h1 class="logo">Admin Upload</h1>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="media.html">Media</a></li>
+      <li><a href="admin.html" id="uploadLink" data-auth="admin" class="hidden">Upload</a></li>
+      <li><a href="#" id="authLink">Login</a></li>
+      <li><span id="loginStatus"></span></li>
+    </ul>
+  </nav>
+
+  <!-- Logout Confirmation Modal -->
+  <div id="logoutModal" class="modal hidden">
+    <div class="modal-content">
+      <p>Are you sure you want to sign out?</p>
+      <button id="confirmLogout">Yes, Sign Out</button>
+      <button id="cancelLogout">Cancel</button>
     </div>
+  </div>
+
+  <!-- Help Modal -->
+  <div id="helpModal" class="modal hidden">
+    <div class="modal-content">
+      <span id="closeHelp" class="help-close">&times;</span>
+      <h3 id="helpHeader">Instructions</h3>
+      <ul id="helpList"></ul>
+    </div>
+  </div>
 </header>
 
-<main>
-    <div class="form">
-        <form id="postForm" method="POST">
-            <h2>Upload Media</h2>
-            <input type="text" id="post_header" placeholder="Title*" required></input>
-            <input type="text" id="post_date" placeholder="Date"></input>
-            <input type="text" id="post_link" placeholder="Link*" required></input>
-            <input type="text" id="post_content" placeholder="Content"></input>
-            <input type="text" id="post_img" placeholder="Image (only 1)"></input>
-            <button type="submit" id="uploadMedia">Upload Post</button>
-            <p id="postMessage"></p>
-        </form>
-    </div>
+<main id="content-area" data-auth="admin" class="hidden">
+  <!-- Admin Banner -->
+  <div id="adminBanner" class="hidden"></div>
+  <div id="adminInterface" class="hidden"></div>
 
-    <div class="form">
-        <form id="contactForm" method="POST">
-            <h2>Upload Contact</h2>
-            <input type="text" id="contact_name" placeholder="Name*" required/></input>
-            <input type="text" id="contact_des" placeholder="Description"/></input>
-            <input type="text" id="contact_link" placeholder="Link"/></input>
-            <button type="submit" id="uploadContact">Upload Contact Information</button>
+  <div class="auth-wrapper">
+    <div class="login-container">
+
+      <!-- ================= Media Upload ================= -->
+      <form id="postForm">
+        <h2>Upload Media <span class="help-icon" data-help="media">❓</span></h2>
+        <input type="text" id="post_header" placeholder="Title" required>
+        <input type="date" id="post_date" required>
+        <input type="url" id="post_link" placeholder="External Link">
+        <textarea id="post_content" placeholder="Post Description" required></textarea>
+        <input type="url" id="post_img" placeholder="Paste image URL here (https://...)" required>
+        <button type="submit" id="uploadMedia">Upload Post</button>
+        <p id="postMessage"></p>
+      </form>
+
+      <!-- ================= Contact Upload ================= -->
+      <form id="contactForm">
+        <h2>Upload Contact <span class="help-icon" data-help="contact">❓</span></h2>
+        <input type="text" id="contact_name" placeholder="Name" required>
+        <input type="text" id="contact_des" placeholder="Description">
+        <input type="url" id="contact_link" placeholder="Link">
+        <button type="submit" id="uploadContact">Upload Contact Information</button>
         <p id="contactMessage"></p>
-        </form>
-    </div>
+      </form>
 
-    <div class="form">
-        <form id="blogForm" method="POST">
-            <h2>Create Blog Post</h2>
-            <input type="text" id="titleInput" placeholder="Title*" required></input>
-            <input type="text" id="descInput" placeholder="Post Content*" required></input>
-            <input type="text" id="imageInput" placeholder="Images (seperate by spaces)"></input>
-            <input type="text" id="dateInput" placeholder="Date"></input>
-            <button type="submit">Create Blog Post</button>
-            <p id="blogMessage"></p>
-        </form>
+      <!-- ================= Blog Upload ================= -->
+      <form id="blogForm">
+        <h2>Create Blog Post <span class="help-icon" data-help="blog">❓</span></h2>
+        <input type="text" id="titleInput" placeholder="Title" required>
+        <textarea id="descInput" placeholder="Post Content" required></textarea>
+        <input type="file" id="imageInput" accept="image/*">
+        <input type="date" id="dateInput">
+        <button type="submit">Create Blog Post</button>
+        <p id="blogMessage"></p>
+      </form>
+
     </div>
+  </div>
 </main>
+
+</body>
+</html>

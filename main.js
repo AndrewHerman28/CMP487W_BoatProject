@@ -1107,7 +1107,7 @@ document.addEventListener("DOMContentLoaded", () => {
             header: "Media Upload Instructions",
             steps: [
                 "Required fields: Title and Link",
-                "Add a short description of media link in the Content field (optional)."
+                "Add a short description of media link in the Content field (optional).",
                 "For optional cover image: Go to GitHub → Images folder.",
                 "Upload your image file there.",
                 "Copy the GitHub image path (for example 'Images/projectBlog2025/...'.",
@@ -1131,7 +1131,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Required fields: Title and Post Content",
                 "For optional image(s): Go to GitHub → Images folder.",
                 "Upload your blog image(s).",
-                "If you have multiple images in a folder, drag and drop them into the Images folder as a folder (makes sub folder under Images)."
+                "If you have multiple images in a folder, drag and drop them into the Images folder as a folder (makes sub folder under Images).",
                 "Copy the GitHub image path(s) seperated by spaces (for example 'Images/projectBlog2025/image1.jpg Images/projectBlog2025/image2.jpg'.",
                 "Paste image path(s) into the Image field.",
                 "Optional: add the date",

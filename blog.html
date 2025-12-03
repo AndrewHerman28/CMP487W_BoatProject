@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <script type="module" src="firebase.js"></script>
     <script type="module" src="main.js"></script>
+
+
 </head>
 <body>
 <header>
@@ -21,31 +23,41 @@
             <li><a href="#" id="authLink">Login</a></li>
         </ul>
     </nav>
-</header>
 
-<!-- Global Modals -->
-<div id="logoutModal" class="modal">
-    <div class="modal-content">
-        <p>Are you sure you want to sign out?</p>
-        <button id="confirmLogout" class="btn btn-danger">Yes, Sign Out</button>
-        <button id="cancelLogout" class="btn btn-secondary">Cancel</button>
-    </div>
-</div>
-
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <h3>Confirm Delete</h3>
-        <p>Are you sure you want to delete this comment?</p>
-        <div class="modal-actions">
-            <button id="confirmDelete" class="btn btn-danger">Yes, Delete</button>
-            <button id="cancelDelete" class="btn btn-secondary">Cancel</button>
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <p>Are you sure you want to sign out?</p>
+            <button id="confirmLogout">Yes, Sign Out</button>
+            <button id="cancelLogout">Cancel</button>
         </div>
     </div>
-</div>
+</header>
+
 
 <main id="content-area">
     <section>
         <h2>Currents Project Blog</h2>
-        <!-- Blog posts and comments will be rendered here -->
         <div class="media-grid" id="blogContainer"></div>
     </section>
+</main>
+
+
+<footer>
+    <img src="Images/psu_abington_logo.jpg" alt="PSU Abington Logo" width="282" height="100">
+    <img src="Images/independent_seaport_museum.jpg" alt="PSU Abington Logo" width="282" height="100">
+    <br>
+    <a href="https://phillyseaport.org/"> Independence Seaport Museum</a>
+    <p>211 S. Columbus Blvd, Philadelphia, PA 19106</p>
+    <p>&copy; 2025 Penn State Abington | Boat Project</p>
+</footer>
+</body>
+</html>
+
+
+
+
+
+
+
+

@@ -30,11 +30,11 @@
     </div>
 </div>
 
-<!-- Confrim delete post popup -->
+<!-- Delete Confirmation Modal -->
 <div id="deletePostModal" class="modal hidden">
     <div class="modal-content">
-        <h3>Confirm Delete</h3>
-        <p>Are you sure you want to delete this blog post?</p>
+        <h3 id="deleteModalTitle">Confirm Delete</h3>
+        <p id="deleteModalMessage">Are you sure you want to delete this post?</p>
         <div class="modal-actions">
             <button id="confirmPostDelete" class="btn btn-danger">Delete</button>
             <button id="cancelPostDelete" class="btn btn-secondary">Cancel</button>
@@ -65,31 +65,38 @@
 <!-- Edit Modal -->
 <div id="editModal" class="modal hidden">
     <div class="modal-content">
-        <span id="closeEditModal" class="close">&times;</span>
-        <h3>Edit Blog Post</h3>
+        <h3>Edit Post</h3>
         <form id="editForm">
+            <!-- Title -->
             <label for="editTitle">Title</label>
-            <input id="editTitle" type="text" required>
+            <input id="editTitle" type="text" placeholder="Title" required>
 
+            <!-- Date -->
             <label for="editDate">Date</label>
             <input id="editDate" type="date">
 
-
+            <!-- Description -->
             <label for="editDescription">Description</label>
-            <textarea id="editDescription" rows="4"></textarea>
+            <textarea id="editDescription" placeholder="Description"></textarea>
 
-            <label for="editImages">Images (one URL per line)</label>
-            <textarea id="editImages" rows="3"></textarea>
-            <!-- Live preview area -->
-            <div id="editImagePreview" class="image-preview"></div>
+            <!-- Link (used for media posts only) -->
+            <label for="editLink">Link</label>
+            <input id="editLink" type="url" placeholder="https://example.com">
 
+            <!-- Images (blog: multiple newline-separated URLs, media: single image URL) -->
+            <label for="editImages">Images</label>
+            <textarea id="editImages" placeholder="Image URLs (one per line)"></textarea>
+
+            <!-- Actions -->
             <div class="modal-actions">
                 <button type="submit" class="btn btn-primary">Save</button>
                 <button type="button" id="cancelEdit" class="btn btn-secondary">Cancel</button>
             </div>
         </form>
+        <button id="closeEditModal" class="modal-close">×</button>
     </div>
 </div>
+
 
 <script type="module" src="firebase.js"></script>
 <script type="module" src="main.js"></script>

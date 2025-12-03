@@ -48,44 +48,44 @@
   <div id="adminBanner" class="hidden"></div>
   <div id="adminInterface" class="hidden"></div>
 
-  <div class="auth-wrapper">
-    <div class="login-container">
-
       <!-- ================= Media Upload ================= -->
-      <form id="postForm">
-        <h2>Upload Media <span class="help-icon" data-help="media">❓</span></h2>
-        <input type="text" id="post_header" placeholder="Title" required>
-        <input type="date" id="post_date" required>
-        <input type="url" id="post_link" placeholder="External Link">
-        <textarea id="post_content" placeholder="Post Description" required></textarea>
-        <input type="url" id="post_img" placeholder="Paste image URL here (https://...)" required>
-        <button type="submit" id="uploadMedia">Upload Post</button>
-        <p id="postMessage"></p>
-      </form>
+      <div class="form">
+        <form id="postForm" method="POST">
+            <h2>Upload Media <span class="help-icon" data-help="media">❓</span></h2>
+            <input type="text" id="post_header" placeholder="Title*" required></input>
+            <input type="text" id="post_date" placeholder="Date"></input>
+            <input type="text" id="post_link" placeholder="Link*" required></input>
+            <input type="text" id="post_content" placeholder="Content"></input>
+            <input type="text" id="post_img" placeholder="Image (only 1)"></input>
+            <button type="submit" id="uploadMedia">Upload Post</button>
+            <p id="postMessage"></p>
+        </form>
+      </div>
 
       <!-- ================= Contact Upload ================= -->
-      <form id="contactForm">
-        <h2>Upload Contact <span class="help-icon" data-help="contact">❓</span></h2>
-        <input type="text" id="contact_name" placeholder="Name" required>
-        <input type="text" id="contact_des" placeholder="Description">
-        <input type="url" id="contact_link" placeholder="Link">
-        <button type="submit" id="uploadContact">Upload Contact Information</button>
+      <div class="form">
+        <form id="contactForm" method="POST">
+            <h2>Upload Contact <span class="help-icon" data-help="contact">❓</span></h2>
+            <input type="text" id="contact_name" placeholder="Name*" required/></input>
+            <input type="text" id="contact_des" placeholder="Description"/></input>
+            <input type="text" id="contact_link" placeholder="Link"/></input>
+            <button type="submit" id="uploadContact">Upload Contact Information</button>
         <p id="contactMessage"></p>
-      </form>
+        </form>
+      </div>
 
       <!-- ================= Blog Upload ================= -->
-      <form id="blogForm">
-        <h2>Create Blog Post <span class="help-icon" data-help="blog">❓</span></h2>
-        <input type="text" id="titleInput" placeholder="Title" required>
-        <textarea id="descInput" placeholder="Post Content" required></textarea>
-        <input type="file" id="imageInput" accept="image/*">
-        <input type="date" id="dateInput">
-        <button type="submit">Create Blog Post</button>
-        <p id="blogMessage"></p>
-      </form>
-
-    </div>
-  </div>
+      <div class="form">
+        <form id="blogForm" method="POST">
+            <h2>Create Blog Post <span class="help-icon" data-help="blog">❓</span></h2>
+            <input type="text" id="titleInput" placeholder="Title*" required></input>
+            <input type="text" id="descInput" placeholder="Post Content*" required></input>
+            <input type="text" id="imageInput" placeholder="Images (seperate by spaces)"></input>
+            <input type="text" id="dateInput" placeholder="Date"></input>
+            <button type="submit">Create Blog Post</button>
+            <p id="blogMessage"></p>
+        </form>
+      </div>
 </main>
 
 </body>

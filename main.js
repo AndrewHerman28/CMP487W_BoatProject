@@ -1107,7 +1107,7 @@ document.addEventListener("DOMContentLoaded", () => {
             header: "Media Upload Instructions",
             steps: [
                 "Required fields: Title and Link",
-                "Add a short description of media link (optional)."
+                "Add a short description of media link in the Content field (optional)."
                 "For optional cover image: Go to GitHub → Images folder.",
                 "Upload your image file there.",
                 "Copy the GitHub image path (for example 'Images/projectBlog2025/...'.",
@@ -1120,7 +1120,7 @@ document.addEventListener("DOMContentLoaded", () => {
             steps: [
                 "Required field: Name",
                 "Enter the contact’s name.",
-                "Optionally, add a description.",
+                "Optional: add a description.",
                 "Paste a link if available (optional).",
                 "Click Upload Contact Information.",
             ],
@@ -1133,9 +1133,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Upload your blog image(s).",
                 "If you have multiple images in a folder, drag and drop them into the Images folder as a folder (makes sub folder under Images)."
                 "Copy the GitHub image path(s) seperated by spaces (for example 'Images/projectBlog2025/image1.jpg Images/projectBlog2025/image2.jpg'.",
-                "Paste image path(s) into the Image field here.",
+                "Paste image path(s) into the Image field.",
                 "Optional: add the date",
-                "If there are multiple images in a post, reference in the Post Content with figure numbers.",
+                "If there are multiple images in a post, reference in the Post Content with figure numbers (in order of the paths entered in Image field, for example, image1.jpg would be Figure 1 and image2.jpg would be Figure 2.",
                 "Click Create Blog Post.",
             ],
         },

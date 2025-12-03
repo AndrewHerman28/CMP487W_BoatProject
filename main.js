@@ -1122,7 +1122,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Enter the contact’s name.",
                 "Optional: add a description.",
                 "Paste a link if available (optional).",
-                "Click Upload Contact Information.",
+                "Click Upload Contact Information."
             ],
         },
         blog: {
@@ -1136,7 +1136,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Paste image path(s) into the Image field.",
                 "Optional: add the date",
                 "If there are multiple images in a post, reference in the Post Content with figure numbers (in order of the paths entered in Image field, for example, image1.jpg would be Figure 1 and image2.jpg would be Figure 2.",
-                "Click Create Blog Post.",
+                "Click Create Blog Post."
             ],
         },
     };

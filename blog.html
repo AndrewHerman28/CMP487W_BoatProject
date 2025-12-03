@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog | PSU Abington Boat Project</title>
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="firebase.js"></script>
-    <script type="module" src="main.js"></script>
 </head>
 <body>
 <header>
@@ -24,7 +22,7 @@
 </header>
 
 <!-- Global Modals -->
-<div id="logoutModal" class="modal">
+<div id="logoutModal" class="modal hidden">
     <div class="modal-content">
         <p>Are you sure you want to sign out?</p>
         <button id="confirmLogout" class="btn btn-danger">Yes, Sign Out</button>
@@ -32,7 +30,20 @@
     </div>
 </div>
 
-<div id="deleteModal" class="modal">
+<!-- Confrim delete post popup -->
+<div id="deletePostModal" class="modal hidden">
+    <div class="modal-content">
+        <h3>Confirm Delete</h3>
+        <p>Are you sure you want to delete this blog post?</p>
+        <div class="modal-actions">
+            <button id="confirmPostDelete" class="btn btn-danger">Delete</button>
+            <button id="cancelPostDelete" class="btn btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+
+<div id="deleteModal" class="modal hidden">
     <div class="modal-content">
         <h3>Confirm Delete</h3>
         <p>Are you sure you want to delete this comment?</p>
@@ -45,7 +56,42 @@
 
 <main id="content-area">
     <section>
-        <h2>Currents Project Blog</h2>
+        <h2>Current Project Blog</h2>
         <!-- Blog posts and comments will be rendered here -->
         <div class="media-grid" id="blogContainer"></div>
     </section>
+</main>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal hidden">
+    <div class="modal-content">
+        <span id="closeEditModal" class="close">&times;</span>
+        <h3>Edit Blog Post</h3>
+        <form id="editForm">
+            <label for="editTitle">Title</label>
+            <input id="editTitle" type="text" required>
+
+            <label for="editDate">Date</label>
+            <input id="editDate" type="date">
+
+
+            <label for="editDescription">Description</label>
+            <textarea id="editDescription" rows="4"></textarea>
+
+            <label for="editImages">Images (one URL per line)</label>
+            <textarea id="editImages" rows="3"></textarea>
+            <!-- Live preview area -->
+            <div id="editImagePreview" class="image-preview"></div>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" id="cancelEdit" class="btn btn-secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="module" src="firebase.js"></script>
+<script type="module" src="main.js"></script>
+</body>
+</html>

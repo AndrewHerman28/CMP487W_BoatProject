@@ -1,4 +1,3 @@
-
 import {
     signInUser,
     registerUser,
@@ -10,22 +9,26 @@ import {
     getAllContacts25,
     getAllContacts21,
     getAllContacts21Pro,
-    addContact,
-    createBlogPost,
+    loadContactsByCollection,
+    getUserInfo,
+    saveUserInfo,
     updateContact,
     deleteContact,
+    deleteBlogPost,
+    updateBlogPost,
     togglePin,
     updatePost,
     deletePost,
     uploadImage,
     checkAdminLogin,
     auth,
-    ADMIN_EMAILS,
+    ADMIN_EMAIL,
     getAllBlogPosts,
-    addComment,
-    listenToComments,
-    deleteComment
 } from "./firebase.js";
+
+import {
+    addDoc
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
 // ================ UI Toggles, Event Listeners, DOM ================
 function setupLoginToggle() {
@@ -90,8 +93,15 @@ function initAuthUI() {
     watchAuthState(async (user) => {
         if (user) {
             setText("loginStatus", "✅ Logged In", "green");
+            let firstName;
             if (authLink) {
-                authLink.innerText = `${user.email} (Logout)`;
+                const userSnap = await getUserInfo(user.uid);
+                if (userSnap.exists()) {
+                    firstName = userSnap.data().FirstName;
+                } else {
+                    firstName = user.email; // fallback
+                }
+                authLink.innerText = `Hello ${firstName} (Logout)`;
                 authLink.style.color = "green";
                 authLink.onclick = async (e) => {
                     e.preventDefault();
@@ -125,7 +135,7 @@ function setText(id, text, color) {
 }
 
 function toggleAuthElements(user) {
-    const isAdmin = user && ADMIN_EMAILS.includes(user.email);
+    const isAdmin = user && user.email === ADMIN_EMAIL;
 
     // Admin-only features
     document.querySelectorAll('[data-auth="admin"]').forEach(el => {
@@ -157,7 +167,7 @@ function setupRegisterForm() {
     if (registerForm) registerForm.addEventListener("submit", handleRegister);
 }
 
-function setupPostForm() { 
+function setupPostForm() {
     const postForm = document.getElementById("postForm");
     if (!postForm) return;
 
@@ -167,10 +177,16 @@ function setupPostForm() {
         const date = document.getElementById("post_date").value;
         const link = document.getElementById("post_link").value;
         const content = document.getElementById("post_content").value;
-        const image = document.getElementById("post_img").value;
+        const imageFile = document.getElementById("post_img").files[0];
+
+        if (!imageFile) {
+            document.getElementById("postMessage").innerText = "Please select an image.";
+            return;
+        }
 
         try {
-            await createPost({title: title, date: date, link: link, description: content, image: image});
+            const imageUrl = await uploadImage(imageFile);
+            await createPost({title, date, link, content, image: imageUrl});
             document.getElementById("postMessage").innerText = "Post uploaded successfully!";
             postForm.reset();
         } catch (err) {
@@ -202,13 +218,19 @@ async function handleRegister(event) {
     event.preventDefault();
     const email = document.getElementById("registeremail").value;
     const pass = document.getElementById("registerpassword").value;
+    const fName = document.getElementById("registerFirstNameId").value;
+    const lName = document.getElementById("registerLastNameId").value;
 
     try {
         const userCredential = await registerUser(email, pass);
-        console.log("Firebase response:", userCredential);
+        const uid = userCredential.user.uid;
+
+        await saveUserInfo(uid, fName, lName, email);
+
         document.getElementById("signinMessageR").innerText = "Account created successfully!";
         document.getElementById("signinMessageR").style.color = "pink";
         document.getElementById("registerForm").reset();
+
     } catch (error) {
         console.error("Registration error:", error);
         document.getElementById("signinMessageR").innerText = error.message;
@@ -276,7 +298,93 @@ function renderPost(postId, postData, user) {
 
         showToast(`Post "${postData.title}" ${newPinned ? "pinned" : "unpinned"}!`);
     });
+    const editBtn = item.querySelector(".edit-btn");
+        let isEditing = false;
+        editBtn.addEventListener("click", async () => {
+    if (!isEditing) {
+        // ================= ENTER EDIT MODE =================
+        isEditing = true;
+        editBtn.textContent = "✅"; // Show save icon
+        // Get elements
+        const titleEl = item.querySelector(".media-title");
+        const dateEl = item.querySelector(".media-date");
+        const descEl = item.querySelector(".media-description");
+        const linkEl = item.querySelector("a");
+        //linkEl.addEventListener("click", (e) => e.preventDefault()) // because above the it supposed open new tab if clicked on picture 
+         // Convert title to <input>
+        titleEl.outerHTML = `
+            <input id="edit-title-${postId}" class="edit-input" value="${postData.title}">
+        `;
 
+        // Convert date to <input type="date">
+        dateEl.outerHTML = `
+        <input id="edit-date-${postId}" class="edit-input" value="${postData.date}">
+        `;
+
+        // Convert description to <textarea>
+        descEl.outerHTML = `
+            <textarea id="edit-description-${postId}" class="edit-textarea">${postData.description}</textarea>
+        `;
+        linkEl.outerHTML = `
+        <textarea id="edit-link-${postId}" class="edit-input">${postData.link}</textarea>
+        `;
+
+        // Remove existing <figure> tags
+        //const figures = item.querySelectorAll("figure"); //removing figure elements 
+        //figures.forEach(fig => fig.remove());
+       
+      const linkInputEl = item.querySelector(`#edit-link-${postId}`);
+    // Insert the image textarea after the input
+    linkInputEl.insertAdjacentHTML(
+    "afterend",
+    `<textarea id="edit-img-${postId}" class="edit-textarea">${postData.image}</textarea>`
+);
+
+
+
+    } else {
+    // ================= SAVE TO FIREBASE =================
+    isEditing = false;
+    editBtn.textContent = "✏️";
+
+    const newTitle = document.getElementById(`edit-title-${postId}`).value.trim();
+    const newDate = document.getElementById(`edit-date-${postId}`).value.trim();
+    const newDescription = document.getElementById(`edit-description-${postId}`).value.trim();
+    const newImage = document.getElementById(`edit-img-${postId}`).value.trim();
+    const newLink = document.getElementById(`edit-link-${postId}`).value.trim();
+
+
+    const updatedData = {
+        ...postData,
+        title: newTitle,
+        date: newDate,
+        description: newDescription,
+        image: newImage,
+        link: newLink
+    };
+
+    // 1. Update Firestore
+    await updatePost(postId, updatedData);
+
+    // 2. Show success message
+    //showToast(`Post "${newTitle}" updated!`);
+
+    // 3. Re-render post UI
+    container.removeChild(item);
+    renderPost(postId, updatedData, user);
+}   
+});
+const deleteBtn = item.querySelector(".delete-btn");
+    deleteBtn.addEventListener("click", async () => {
+    try {
+        await deletePost(postId); // delete from Firestore
+        container.removeChild(item);   // remove from DOM immediately
+        //showToast(`Post "${postData.title}" deleted!`);
+    } catch (err) {
+        console.error("Failed to delete post:", err);
+        //showToast("Failed to delete post.");
+    }
+});
 }
 
 async function loadPosts(user) {
@@ -302,41 +410,22 @@ function renderBlogPost(postId, postData, user) {
     if (postData.pinned) item.dataset.pinned = "true";
 
     item.innerHTML = `
-    <div class="media-actions hidden" data-auth="required">
-      <button class="pin-btn">📌</button>
-      <button class="edit-btn">✏️</button>
-      <button class="delete-btn">🗑️</button>
+      <div class="media-actions hidden" data-auth="required">
+        <button class="pin-btn">📌</button>
+        <button class="edit-btn">✏️</button>
+        <button class="delete-btn">🗑️</button>
     </div>
-    <h3 class="media-title">${postData.title}</h3>
-    <p class="media-date">${postData.date}</p>
-    <a href="${postData.description}" target="_blank">`; // Changed this line because it was link but blog posts do not have links, have descriptions 
+      <h3 class="media-title">${postData.title}</h3>
+      <p class="media-date">${postData.date}</p>
+      <a href="${postData.link}" target="_blank">`
 
-    // Partner’s image loop
-    if (Array.isArray(postData.images)) {
-        for (let i = 0; i < postData.images.length; i++) {
-            item.innerHTML += `
-        <figure>
-          <img src="${postData.images[i]}" alt="Image">
-          <figcaption>Figure ${i + 1}</figcaption>
-        </figure>`;
-        }
-    }
-
+    for (let i = 0; i < postData.images.length; i++) { //esentially loops through all th images
+        item.innerHTML += `
+        <figure> 
+            <img src="${postData.images[i]}" alt="Image">
+            <figcaption>Figure ${i+1}</figcaption></figure>`;
+    }//each image gets its own figure block with caption
     item.innerHTML += `</a><br><p class="media-description">${postData.description}</p>`;
-
-    // Your comment section
-    const commentsEl = document.createElement("div");
-    commentsEl.classList.add("comments");
-    commentsEl.dataset.postId = postId;
-    commentsEl.innerHTML = `
-    <h4>Comments</h4>
-    <div class="comment-list"></div>
-    <form class="comment-form">
-      <textarea placeholder="Write a comment..." required></textarea>
-      <button type="submit">Post Comment</button>
-    </form>
-  `;
-    item.appendChild(commentsEl);
 
     container.appendChild(item);
 
@@ -344,19 +433,107 @@ function renderBlogPost(postId, postData, user) {
     pinBtn.addEventListener("click", async () => {
         const currentlyPinned = item.dataset.pinned === "true";
         const newPinned = await togglePin(postId, currentlyPinned);
+
         postData.pinned = newPinned;
         item.dataset.pinned = newPinned ? "true" : "false";
 
+        // Re-sort DOM
         container.removeChild(item);
         if (newPinned) {
             container.insertBefore(item, container.firstChild);
         } else {
             container.appendChild(item);
         }
+
         showToast(`Post "${postData.title}" ${newPinned ? "pinned" : "unpinned"}!`);
     });
+    const editBtn = item.querySelector(".edit-btn");
+        let isEditing = false;
 
-    renderCommentSection(postId, user);
+    editBtn.addEventListener("click", async () => {
+    if (!isEditing) {
+        // ================= ENTER EDIT MODE =================
+        isEditing = true;
+        editBtn.textContent = "✅"; // Show save icon
+
+        // Get elements
+        const titleEl = item.querySelector(".media-title");
+        const dateEl = item.querySelector(".media-date");
+        const descEl = item.querySelector(".media-description");
+        const imageList = postData.images.join("\n");
+
+        // Convert title to <input>
+        titleEl.outerHTML = `
+            <input id="edit-title-${postId}" class="edit-input" value="${postData.title}">
+        `;
+
+        // Convert date to <input type="date">
+        dateEl.outerHTML = `
+        <input id="edit-date-${postId}" class="edit-input" value="${postData.date}">
+        `;
+
+        // Convert description to <textarea>
+        descEl.outerHTML = `
+            <textarea id="edit-description-${postId}" class="edit-textarea">${postData.description}</textarea>
+        `;
+        
+        // Remove existing <figure> tags
+        const figures = item.querySelectorAll("figure"); //removing figure elements 
+        figures.forEach(fig => fig.remove());
+
+        // Insert textarea where the images were
+        const linkEl = item.querySelector("a");
+        linkEl.insertAdjacentHTML( // DOM method that lets you insert HTM
+        "afterend", // so the <a> doesnt get triggered and doesnt launch to a new page.
+        `<textarea id="edit-img-${postId}" class="edit-textarea">${imageList}</textarea>`
+    );
+
+    } else {
+    // ================= SAVE TO FIREBASE =================
+    isEditing = false;
+    editBtn.textContent = "✏️";
+
+    const newTitle = document.getElementById(`edit-title-${postId}`).value.trim();
+    const newDate = document.getElementById(`edit-date-${postId}`).value.trim();
+    const newDescription = document.getElementById(`edit-description-${postId}`).value.trim();
+
+    const newImages = document
+    .getElementById(`edit-img-${postId}`)
+    .value
+    .split("\n") // splits it by line to get an array of images
+    .map(url => url.trim()) 
+    .filter(url => url !== ""); // removes empty lines
+
+    const updatedData = {
+        ...postData,
+        title: newTitle,
+        date: newDate,
+        description: newDescription,
+        images: newImages
+    };
+
+    // 1. Update Firestore
+    await updateBlogPost(postId, updatedData);
+
+    // 2. Show success message
+    //showToast(`Post "${newTitle}" updated!`);
+
+    // 3. Re-render post UI
+    container.removeChild(item);
+    renderBlogPost(postId, updatedData, user);
+}   
+});
+    const deleteBtn = item.querySelector(".delete-btn");
+    deleteBtn.addEventListener("click", async () => {
+    try {
+        await deleteBlogPost(postId); // delete from Firestore
+        container.removeChild(item);   // remove from DOM immediately
+        //showToast(`Post "${postData.title}" deleted!`);
+    } catch (err) {
+        console.error("Failed to delete post:", err);
+        //showToast("Failed to delete post.");
+    }
+});
 }
 
 async function loadBlogPosts(user) {
@@ -365,154 +542,87 @@ async function loadBlogPosts(user) {
         snapshot.forEach((doc) => renderBlogPost(doc.id, doc.data(), user));
         toggleAuthElements(user);
     } catch (err) {
+        console.error("Error loading posts:", err);
         const container = document.getElementById("blogContainer");
         if (container) container.innerHTML = "<p>Failed to load posts.</p>";
     }
 }
 
 
-// ================ Comments ================
-function renderCommentSection(postId, user) {
-    const postEl = document.querySelector(`.media-item[data-id="${postId}"]`);
-    if (!postEl) return;
-
-    const commentsEl = postEl.querySelector(".comments");
-    const form = commentsEl.querySelector(".comment-form");
-    const list = commentsEl.querySelector(".comment-list");
-
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const text = form.querySelector("textarea").value.trim();
-        if (!text) return;
-        await addComment(postId, user, text, null);
-        form.reset();
-    });
-
-    // Listen for all comments
-    listenToComments(postId, (snapshot) => {
-        list.innerHTML = "";
-        const comments = [];
-        snapshot.forEach((docSnap) => {
-            comments.push({id: docSnap.id, ...docSnap.data()});
-        });
-
-        // Group by parent
-        const byParent = {};
-        comments.forEach(c => {
-            const parent = c.parentId || "root";
-            if (!byParent[parent]) byParent[parent] = [];
-            byParent[parent].push(c);
-        });
-
-        function renderThread(parentId, container, depth = 0) {
-            (byParent[parentId] || []).forEach(c => {
-                const item = document.createElement("div");
-                item.classList.add("comment-item");
-                item.style.marginLeft = `${depth * 20}px`;
-                item.dataset.id = c.id;
-
-                const canDelete = ADMIN_EMAILS.includes(user.email) || (c.authorId === user.uid);
-
-
-                if (c.deleted) {
-                    if (byParent[c.id] && byParent[c.id].length > 0) {
-                        item.innerHTML = `<p><em>[deleted]</em></p><div class="reply-list"></div>`;
-                    } else {
-                        return;
-                    }
-                } else {
-                    item.innerHTML = `
-            <p><strong>${c.authorName}</strong>: ${c.text}</p>
-            <small>${c.timestamp?.toDate().toLocaleString() || ""}</small>
-            <button class="btn btn-secondary small reply-btn">Reply</button>
-            ${canDelete ? `<button class="btn btn-danger small delete-comment">Delete</button>` : ""}
-            <button class="btn btn-secondary small toggle-replies hidden">Show Replies</button>
-            <div class="reply-list"></div>
-          `;
-                }
-
-                const replyList = item.querySelector(".reply-list");
-                const toggleBtn = item.querySelector(".toggle-replies");
-
-                if (byParent[c.id] && byParent[c.id].length > 0 && toggleBtn) {
-                    toggleBtn.classList.remove("hidden");
-                    toggleBtn.addEventListener("click", () => {
-                        const isHidden = replyList.classList.toggle("collapsed");
-                        toggleBtn.textContent = isHidden ? "Show Replies" : "Hide Replies";
-                    });
-                }
-
-                const replyBtn = item.querySelector(".reply-btn");
-                if (replyBtn) {
-                    replyBtn.addEventListener("click", () => {
-                        const replyForm = document.createElement("form");
-                        replyForm.classList.add("reply-form");
-                        replyForm.innerHTML = `
-              <textarea placeholder="Write a reply..." required></textarea>
-              <button type="submit" class="btn btn-primary small">Post Reply</button>
-            `;
-                        replyList.appendChild(replyForm);
-
-                        replyForm.addEventListener("submit", async (e) => {
-                            e.preventDefault();
-                            const text = replyForm.querySelector("textarea").value.trim();
-                            if (!text) return;
-                            await addComment(postId, user, text, c.id);
-                            replyForm.remove();
-                        });
-                    });
-                }
-
-                const deleteBtn = item.querySelector(".delete-comment");
-                if (deleteBtn) {
-                    deleteBtn.addEventListener("click", () => {
-                        const modal = document.getElementById("deleteModal");
-                        modal.classList.add("show");
-
-                        const confirmBtn = document.getElementById("confirmDelete");
-                        const cancelBtn = document.getElementById("cancelDelete");
-
-                        confirmBtn.onclick = null;
-                        cancelBtn.onclick = null;
-
-                        confirmBtn.onclick = async () => {
-                            await deleteComment(postId, c.id);
-                            modal.classList.remove("show");
-                        };
-                        cancelBtn.onclick = () => modal.classList.remove("show");
-                    });
-                }
-
-                renderThread(c.id, replyList, depth + 1);
-                container.appendChild(item);
-            });
-        }
-
-        renderThread("root", list);
-    });
-}
-
-
-// ================ Render/Load Contacts ================
-// ================ Generic Contact Rendering/Loading with Headings ================
-function renderContact(contactId, contactData, user, section) {
+// ================= Render/Load Contacts =================
+// Generic Contact Rendering/Loading
+function renderContact(contactId, contactData, user, collectionName) {
+    const container = document.getElementById("contactContainer");
     const item = document.createElement("div");
     item.classList.add("contact-item");
     item.dataset.id = contactId;
 
     item.innerHTML = `
-      <h4 class="contact-name">${contactData.name}</h4>
-      <p>${contactData.description ?? ""}</p>
-      <p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>
-      <div class="contact-actions hidden" data-auth="required">
-        <button class="edit-btn">Edit</button>
-        <button class="delete-btn">Delete</button>
-      </div>
+        <h4 class="contact-name">${contactData.name}</h4>
+        <p>${contactData.description ?? ""}</p>
+        <p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>
+        <div class="contact-actions hidden" data-auth="required">
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+        </div>
     `;
 
-    section.appendChild(item);
+    container.appendChild(item);
     toggleAuthElements(user);
+
+    const editBtn = item.querySelector(".edit-btn");
+    const deleteBtn = item.querySelector(".delete-btn");
+    let isEditing = false;
+
+    editBtn.addEventListener("click", async () => {
+        if (!isEditing) {
+            // ================= ENTER EDIT MODE =================
+            isEditing = true;
+            editBtn.textContent = "Save";
+
+            const nameEl = item.querySelector(".contact-name");
+            const descEl = item.querySelector("p:nth-of-type(1)");
+            const linkEl = item.querySelector("p:nth-of-type(2) a");
+
+            // Replace with input/textarea for editing
+            nameEl.outerHTML = `<textarea id="edit-name-${contactId}" class="edit-textarea">${contactData.name}</textarea>`;
+            descEl.outerHTML = `<input id="edit-desc-${contactId}" class="edit-input" value="${contactData.description}">`;
+            linkEl.outerHTML = `<input id="edit-link-${contactId}" class="edit-input" value="${contactData.link}">`;
+        } else {
+            // ================= SAVE CHANGES =================
+            isEditing = false;
+            editBtn.textContent = "Edit";
+
+            const newName = document.getElementById(`edit-name-${contactId}`).value.trim();
+            const newDescription = document.getElementById(`edit-desc-${contactId}`).value.trim();
+            const newLink = document.getElementById(`edit-link-${contactId}`).value.trim();
+
+            const updatedData = {
+                ...contactData,
+                name: newName,
+                description: newDescription,
+                link: newLink
+            };
+
+            // Update Firestore
+            await updateContact(contactId, updatedData, collectionName);
+
+            // Remove old item and re-render
+            container.removeChild(item);
+            renderContact(contactId, updatedData, user, collectionName);
+        }
+    });
+
+    deleteBtn.addEventListener("click", async () => {
+        try {
+            await deleteContact(contactId, collectionName);
+            container.removeChild(item);
+        } catch (err) {
+            console.error("Failed to delete contact:", err);
+        }
+    });
 }
+
 
 async function loadContacts(user, getContactsFn, headingText) {
     const container = document.getElementById("contactContainer");
@@ -523,13 +633,17 @@ async function loadContacts(user, getContactsFn, headingText) {
     section.classList.add("contact-group");
     section.innerHTML = `<h3 class="contact-headings">${headingText}</h3>`;
     container.appendChild(section);
+    let collectionName = "";
+    if (headingText.includes("2025")) collectionName = "contactInfo2025";
+    else if (headingText.includes("2022")) collectionName = "contactInfo2021_2022";
+    else if (headingText.includes("Project")) collectionName = "contactInfo2021_Project";
 
     try {
         const snapshot = await getContactsFn();
         console.log(`Contacts found for ${headingText}:`, snapshot.size);
         snapshot.forEach((doc) => {
             console.log("Contact doc:", doc.id, doc.data());
-            renderContact(doc.id, doc.data(), user, section);
+            renderContact(doc.id, doc.data(), user, collectionName);
         });
     } catch (err) {
         console.error(`Error loading contacts for ${headingText}:`, err);
@@ -543,7 +657,7 @@ async function showAdminFeatures() {
     const email = document.getElementById("email")?.value;
     const pass = document.getElementById("password")?.value;
 
-    if (email === ADMIN_EMAIL) {
+    if (email === CLIENT_EMAIL) {
         try {
             const result = await checkAdminLogin(auth, email, pass);
             if (result) {
@@ -560,49 +674,36 @@ async function showAdminFeatures() {
     }
 }
 
-function adminContactUpload() {
+// Upload media and contacts for admin
+async function adminUpload() {
+    const mediaForm = document.getElementById("postForm");
     const contactForm = document.getElementById("contactForm");
-    if (!contactForm) return;
 
-    contactForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+    mediaForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission and page refresh
 
-        const name = document.getElementById("contact_name").value;
-        const link = document.getElementById("contact_link").value;
-        const des = document.getElementById("contact_des").value;
+        const postTitle = document.getElementById("post-header").value;
+        const postLink = document.getElementById("post-link").value;
+        const postDate = document.getElementById("post-date").value;
+        const postContent = document.getElementById("post-content").value;
+        const postImage = document.getElementById("post-img").value;
 
-        try {
-            await addContact({name: name, description: des, link: link});
-            document.getElementById("contactMessage").innerText = "Contact uploaded successfully!";
-            contactForm.reset();
-        } catch (err) {
-            console.error("Contact upload error:", err);
-            document.getElementById("contactMessage").innerText = "Error uploading contact.";
-        }
-    });
-}
+        const data = {title: postTitle, link: postLink, date: postDate, description: postContent, image: postImage};
 
-function adminBlogUpload() {
-    const blogForm = document.getElementById("blogForm");
-    if (!blogForm) return;
-
-    blogForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const title = document.getElementById("titleInput").value;
-        const des = document.getElementById("descInput").value;
-        const date = document.getElementById("dateInput").value;
-        const imageString = document.getElementById("imageInput").value;
-        const images = imageString.split(" ");
+        await addDoc(collection(db, "mediaPosts"), data);
         
-        try {
-            await createBlogPost({title: title, description: des, images: images, date: date});
-            document.getElementById("blogMessage").innerText = "Blog uploaded successfully!";
-            blogForm.reset();
-        } catch (err) {
-            console.error("Blog upload error:", err);
-            document.getElementById("blogMessage").innerText = "Error uploading blog.";
-        }
+    });
+
+    contactForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission and page refresh
+
+        const contactName = document.getElementById("contact_name").value;
+        const contactDes = document.getElementById("contact_des").value;
+        const contactLink = document.getElementById("contact_link").value;
+
+        const data = {name: contactName, description: contactDes, link: contactLink};
+
+        await addDoc(collection(db, "contactInfo2025"), data);
     });
 }
 
@@ -616,8 +717,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupLogoutButton();
     initAuthUI();
     showAdminFeatures();
-    adminContactUpload();
-    adminBlogUpload();
+    adminUpload();
 
     const forgotP = document.getElementById("forgotPassword");
     if (forgotP) forgotP.addEventListener("click", handleForgotPassword);
@@ -634,9 +734,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     if (path.includes("blog.html")) {
-        watchAuthState((user) => loadBlogPosts(user))
-    }
-    ;
+        watchAuthState((user) => loadBlogPosts(user))};
 
     const btn = document.getElementById("currentProjectBtn");
     if (btn) {

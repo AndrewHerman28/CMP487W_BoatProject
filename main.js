@@ -668,29 +668,33 @@ function renderCommentSection(postId, user) {
 }
 
 // ================ Render/Load Contacts ================
-function renderContact(contactId, contactData, user, collectionName) {
-    const container = document.getElementById("contactContainer");
+function renderContact(contactId, contactData, user, collectionName, listEl) {
+    // Create the contact card
     const item = document.createElement("div");
     item.classList.add("contact-item");
     item.dataset.id = contactId;
 
     item.innerHTML = `
-    <h4 class="contact-name">${contactData.name}</h4>
-    <p>${contactData.description ?? ""}</p>
-    <p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>
-    <div class="contact-actions hidden" data-auth="required">
-      <button class="edit-btn">Edit</button>
-      <button class="delete-btn">Delete</button>
-    </div>
-  `;
+        <h4 class="contact-name">${contactData.name}</h4>
+        <p>${contactData.description ?? ""}</p>
+        ${contactData.link ? `<p><a href="${contactData.link}" target="_blank">${contactData.link}</a></p>` : ""}
+        <div class="contact-actions hidden" data-auth="required">
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+        </div>
+    `;
 
-    container.appendChild(item);
+    // Append to the correct section list
+    listEl.appendChild(item);
+
+    // Toggle auth‑restricted buttons
     toggleAuthElements(user);
 
     const editBtn = item.querySelector(".edit-btn");
     const deleteBtn = item.querySelector(".delete-btn");
     let isEditing = false;
 
+    // Edit / Save toggle
     editBtn.addEventListener("click", async () => {
         if (!isEditing) {
             isEditing = true;
@@ -702,14 +706,17 @@ function renderContact(contactId, contactData, user, collectionName) {
 
             nameEl.outerHTML = `<textarea id="edit-name-${contactId}" class="edit-textarea">${contactData.name}</textarea>`;
             descEl.outerHTML = `<input id="edit-desc-${contactId}" class="edit-input" value="${contactData.description ?? ""}">`;
-            linkEl.outerHTML = `<input id="edit-link-${contactId}" class="edit-input" value="${contactData.link ?? ""}">`;
+            if (linkEl) {
+                linkEl.outerHTML = `<input id="edit-link-${contactId}" class="edit-input" value="${contactData.link ?? ""}">`;
+            }
         } else {
             isEditing = false;
             editBtn.textContent = "Edit";
 
             const newName = document.getElementById(`edit-name-${contactId}`).value.trim();
             const newDescription = document.getElementById(`edit-desc-${contactId}`).value.trim();
-            const newLink = document.getElementById(`edit-link-${contactId}`).value.trim();
+            const newLinkInput = document.getElementById(`edit-link-${contactId}`);
+            const newLink = newLinkInput ? newLinkInput.value.trim() : "";
 
             const updatedData = {
                 ...contactData,
@@ -720,15 +727,17 @@ function renderContact(contactId, contactData, user, collectionName) {
 
             await updateContact(contactId, updatedData, collectionName);
 
-            container.removeChild(item);
-            renderContact(contactId, updatedData, user, collectionName);
+            // Re‑render with updated data
+            listEl.removeChild(item);
+            renderContact(contactId, updatedData, user, collectionName, listEl);
         }
     });
 
+    // Delete button
     deleteBtn.addEventListener("click", async () => {
         try {
             await deleteContact(contactId, collectionName);
-            container.removeChild(item);
+            listEl.removeChild(item);
         } catch (err) {
             console.error("Failed to delete contact:", err);
         }

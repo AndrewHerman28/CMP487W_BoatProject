@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | PSU Abington Boat Project</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="login.css">
-    <script type="module" src="firebase.js"></script>
-    <script type="module" src="main.js"></script>
-
-
+    <script type="module" src="firebase.js" defer></script>
+    <script type="module" src="main.js" defer></script>
 </head>
 <body>
 <header>
@@ -23,10 +20,12 @@
             <li><a href="media.html">Media</a></li>
             <li><a href="admin.html" id="uploadLink" data-auth="admin" class="hidden">Upload</a></li>
             <li><a href="#" id="authLink">Login</a></li>
+            <li><span id="loginStatus"></span></li>
         </ul>
     </nav>
+
     <!-- Logout Confirmation Modal -->
-    <div id="logoutModal" class="modal">
+    <div id="logoutModal" class="modal hidden">
         <div class="modal-content">
             <p>Are you sure you want to sign out?</p>
             <button id="confirmLogout">Yes, Sign Out</button>
@@ -38,8 +37,8 @@
 <main id="content-area">
     <div class="wrapper">
         <div class="title-text">
-            <div class="title login">Login Form</div>
-            <div class="title signup">Signup Form</div>
+            <div class="title login">Login Form </div>
+            <div class="title signup">Signup Form </div>
         </div>
         <div class="form-container">
             <div class="slide-controls">
@@ -50,6 +49,7 @@
                 <div class="slider-tab"></div>
             </div>
             <div class="form-inner">
+                <!-- Login Form -->
                 <form id="loginForm" class="login">
                     <div class="field">
                         <input type="email" id="email" placeholder="Email" required/>
@@ -61,10 +61,12 @@
                     <div class="pass-link"><a href="#" id="forgotPassword">Forgot password?</a></div>
                     <div class="field btn">
                         <div class="btn-layer"></div>
-                        <input type="submit" id="signinBtn">
+                        <input type="submit" id="signinBtn" value="Login">
                     </div>
                     <div class="signup-link">Don't have an account? <a href="">Signup now</a></div>
                 </form>
+
+                <!-- Signup Form -->
                 <form id="registerForm" class="signup">
                     <div class="field">
                         <input type="email" id="registeremail" name="email" placeholder="Enter your email" required/>
@@ -73,21 +75,23 @@
                         <input type="password" id="registerpassword" name="password" placeholder="Create a password"
                                required/>
                     </div>
+                    <div class="field">
+                        <input type="text" id="registerFirstNameId" name="registerFirstName"
+                               placeholder="Enter your first name" required/>
+                    </div>
+                    <div class="field">
+                        <input type="text" id="registerLastNameId" name="registerLastName"
+                               placeholder="Enter your last name" required/>
+                    </div>
                     <div id="signinMessageR" style="color:red; margin-top:10px; text-align:center;"></div>
-                    <!---<div class="field">
-                    <input type="password" id="registerconfirmpassword" name="confirmpassword" placeholder="Create a password" required/>
-                    </div>-->
                     <div class="field btn">
                         <div class="btn-layer"></div>
                         <input type="submit" value="Signup">
                     </div>
                 </form>
-
             </div>
         </div>
     </div>
-
-
 </main>
 
 <footer>

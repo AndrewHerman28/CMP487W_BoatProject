@@ -739,9 +739,15 @@ async function loadContacts(user, getContactsFn, headingText) {
     const container = document.getElementById("contactContainer");
     if (!container) return;
 
+    // Create a section with a heading and a list container
     const section = document.createElement("div");
     section.classList.add("contact-group");
     section.innerHTML = `<h3 class="contact-headings">${headingText}</h3>`;
+
+    const list = document.createElement("div");
+    list.classList.add("contact-list");
+    section.appendChild(list);
+
     container.appendChild(section);
 
     let collectionName = "";
@@ -754,7 +760,8 @@ async function loadContacts(user, getContactsFn, headingText) {
         console.log(`Contacts found for ${headingText}:`, snapshot.size);
         snapshot.forEach((doc) => {
             console.log("Contact doc:", doc.id, doc.data());
-            renderContact(doc.id, doc.data(), user, collectionName);
+            // Pass the list container into renderContact so items stay inside their section
+            renderContact(doc.id, doc.data(), user, collectionName, list);
         });
     } catch (err) {
         console.error(`Error loading contacts for ${headingText}:`, err);

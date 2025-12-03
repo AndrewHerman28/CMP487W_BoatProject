@@ -1,6 +1,4 @@
-/* =========================
-   Reset and base
-   ========================= */
+/* Reset and base */
 * {
     margin: 0;
     padding: 0;
@@ -9,7 +7,7 @@
 
 html, body {
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    background: #f5f5f5;
     color: #222;
     height: 100%;
     display: flex;
@@ -20,15 +18,13 @@ main {
     flex: 1;
 }
 
-/* =========================
-   Navbar
-   ========================= */
+/* Navbar */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #002d72;
-    color: white;
+    background: #002d72;
+    color: #fff;
     padding: 12px 24px;
 }
 
@@ -43,7 +39,7 @@ main {
 }
 
 .nav-links a {
-    color: white;
+    color: #fff;
     text-decoration: none;
     font-weight: bold;
     transition: text-decoration 0.3s ease;
@@ -53,29 +49,53 @@ main {
     text-decoration: underline;
 }
 
-/* =========================
-   Search bar section
-   ========================= */
+/* Search section */
 .search-section {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    background-color: #e9ecef;
+    background: #e9ecef;
     padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 20px auto;
 }
 
-.search-section input,
-.search-section select,
+.search-section input, .search-section select {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #002d72;
+    border-right: none;
+    border-radius: 6px 0 0 6px;
+    font-size: 15px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-section input:focus, .search-section select:focus {
+    outline: none;
+    border-color: #004aad;
+    box-shadow: 0 0 6px rgba(0, 74, 173, 0.4);
+}
+
 .search-section button {
-    padding: 8px 12px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    padding: 12px 20px;
+    background: #002d72;
+    color: #fff;
+    border: 2px solid #002d72;
+    border-radius: 0 6px 6px 0;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-/* =========================
-   Buttons (unified)
-   ========================= */
+.search-section button:hover {
+    background: #004aad;
+    transform: translateY(-2px);
+}
+
+/* Buttons */
 .btn {
     border: none;
     border-radius: 5px;
@@ -121,7 +141,6 @@ main {
     background: #95a5a6;
 }
 
-/* Legacy comment delete button (still supported) */
 .delete-comment {
     background: #e74c3c;
     color: #fff;
@@ -138,22 +157,18 @@ main {
     background: #c0392b;
 }
 
-/* =========================
-   Content wrapper
-   ========================= */
+/* Content area */
 #content-area {
     position: relative;
     max-width: 1000px;
     margin: 40px auto;
-    background: white;
+    background: #fff;
     padding: 40px 20px 80px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* =========================
-   Forms
-   ========================= */
+/* Forms */
 .auth-wrapper {
     display: flex;
     justify-content: center;
@@ -162,9 +177,8 @@ main {
     flex-wrap: wrap;
 }
 
-.login-container,
-.register-container {
-    background-color: white;
+.login-container, .register-container {
+    background: #fff;
     padding: 40px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -186,23 +200,19 @@ form label {
     font-weight: bold;
 }
 
-form input,
-.comment-form textarea {
+form input, .comment-form textarea {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     transition: border-color 0.3s ease;
 }
 
-form input:focus,
-.comment-form textarea:focus {
+form input:focus, .comment-form textarea:focus {
     outline: none;
     border-color: #004aad;
 }
 
-/* Fallback primary style for form buttons if classes are missing */
-form button,
-.comment-form button {
+form button, .comment-form button {
     background: #002d72;
     color: #fff;
     padding: 10px;
@@ -210,16 +220,21 @@ form button,
     border-radius: 5px;
 }
 
-form button:hover,
-.comment-form button:hover {
+form button:hover, .comment-form button:hover {
     background: #004aad;
 }
 
-#signinMessage,
-#signinMessageR {
+#signinMessage, #signinMessageR {
     text-align: center;
     font-weight: bold;
     color: rgb(240, 88, 113);
+}
+
+/* Admin upload form wrapper */
+.form {
+    display: inline-block;
+    padding: 50px;
+    justify-content: center;
 }
 
 /* Current project button */
@@ -228,8 +243,8 @@ form button:hover,
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #002d72;
-    color: white;
+    background: #002d72;
+    color: #fff;
     border: none;
     padding: 10px 25px;
     border-radius: 5px;
@@ -239,12 +254,10 @@ form button:hover,
 }
 
 #currentProjectBtn:hover {
-    background-color: #004aad;
+    background: #004aad;
 }
 
-/* =========================
-   Blog intro, sections, links
-   ========================= */
+/* Blog intro */
 #blog-intro h2 {
     text-align: center;
     font-size: 28px;
@@ -299,9 +312,7 @@ a:hover {
     text-decoration: underline;
 }
 
-/* =========================
-   Animations
-   ========================= */
+/* Animations */
 section {
     animation: fadeIn 0.6s ease-in;
 }
@@ -317,12 +328,10 @@ section {
     }
 }
 
-/* =========================
-   Media grid and cards
-   ========================= */
+/* Media grid/cards */
 .media-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns:repeat(2, 1fr);
     gap: 40px;
     max-width: 1750px;
     margin: 40px auto;
@@ -334,10 +343,10 @@ section {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
-    border: 1px solid #ddd; /* unified border */
+    border: 1px solid #ddd;
     margin-bottom: 1.5rem;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, all 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .media-item:hover {
@@ -425,9 +434,7 @@ section {
     opacity: 0.85;
 }
 
-/* =========================
-   Comments
-   ========================= */
+/* Comments */
 .comments {
     margin-top: 15px;
     padding: 10px;
@@ -441,8 +448,7 @@ section {
     border-bottom: 1px solid #ddd;
 }
 
-.reply-btn,
-.toggle-replies {
+.reply-btn, .toggle-replies {
     background: #f0f0f0;
     border: none;
     padding: 4px 8px;
@@ -452,8 +458,7 @@ section {
     margin-left: 10px;
 }
 
-.toggle-replies:hover,
-.reply-btn:hover {
+.reply-btn:hover, .toggle-replies:hover {
     background: #ddd;
 }
 
@@ -469,7 +474,7 @@ section {
     margin-top: 5px;
     padding: 6px 12px;
     background: #3498db;
-    color: white;
+    color: #fff;
     border: none;
     border-radius: 4px;
 }
@@ -478,19 +483,16 @@ section {
     display: none;
 }
 
-/* =========================
-   Modals (logout/delete/pin overlay)
-   ========================= */
+/* Modals (logout/delete/pin/help) */
 .modal {
-    display: none; /* hidden by default */
+    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* semi-transparent backdrop */
-    /* Flex centering when shown */
+    background: rgba(0, 0, 0, 0.5);
     align-items: center;
     justify-content: center;
 }
@@ -516,7 +518,16 @@ section {
     cursor: pointer;
 }
 
-/* Pin modal variant (gradient 3D style) */
+#confirmLogout {
+    background: #d9534f;
+    color: #fff;
+}
+
+#cancelLogout {
+    background: #ccc;
+}
+
+/* Pin modal variant */
 .pin-modal {
     background: linear-gradient(135deg, #002d72, #004aad);
     color: #fff;
@@ -534,7 +545,6 @@ section {
     margin-bottom: 15px;
     font-size: 22px;
     font-weight: bold;
-    color: #fff;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 
@@ -573,9 +583,7 @@ section {
     }
 }
 
-/* =========================
-   Utility
-   ========================= */
+/* Utility */
 .hidden {
     display: none !important;
 }
@@ -585,20 +593,21 @@ section {
     margin-left: 15px;
 }
 
-/* =========================
-   Footer
-   ========================= */
+.highlight-text {
+    background: yellow;
+    font-weight: bold;
+}
+
+/* Footer */
 footer {
     text-align: center;
     padding: 15px;
-    background-color: #002d72;
-    color: white;
+    background: #002d72;
+    color: #fff;
     margin-top: 40px;
 }
 
-/* =========================
-   Contact page
-   ========================= */
+/* Contact page */
 #contactContainer {
     display: flex;
     flex-direction: column;
@@ -620,7 +629,7 @@ footer {
 
 .contact-group:hover {
     transform: translateY(-4px);
-    background-color: #f9fcff;
+    background: #f9fcff;
 }
 
 .contact-headings {
@@ -632,7 +641,7 @@ footer {
 }
 
 .contact-item {
-    background: #ffffff;
+    background: #fff;
     border: 1px solid #ddd;
     border-radius: 10px;
     padding: 15px 20px;
@@ -703,19 +712,91 @@ footer {
     opacity: 0.85;
 }
 
-/* =========================
-   Responsive
-   ========================= */
+/* Help system */
+.help-icon {
+    display: inline-block;
+    cursor: pointer;
+    margin-left: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #002d72;
+    background: #e0e7ff;
+    border: 2px solid #002d72;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    line-height: 18px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.help-icon:hover {
+    background: #004aad;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.help-modal.hidden {
+    display: none;
+}
+
+.help-modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.help-modal-content {
+    background: #fff;
+    padding: 25px;
+    width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    animation: fadeIn 0.3s ease;
+}
+
+.help-modal-content h3 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    color: #002d72;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 8px;
+}
+
+.help-modal-content ul {
+    list-style: disc;
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.help-modal-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.help-close {
+    float: right;
+    cursor: pointer;
+    font-size: 1.5em;
+    color: #888;
+}
+
+.help-close:hover {
+    color: #222;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
     .auth-wrapper {
         flex-direction: column;
         align-items: center;
     }
-}
-
-/* CSS for forms in admin upload page*/
-.form {
-    display: inline-block;
-    padding: 50px;
-    justify-content: center;
 }

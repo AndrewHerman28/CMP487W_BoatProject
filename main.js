@@ -1263,29 +1263,37 @@ document.addEventListener("DOMContentLoaded", () => {
         media: {
             header: "Media Upload Instructions",
             steps: [
-                "Go to GitHub → Images folder.",
+                "Required fields: Title and Link",
+                "Add a short description of media link in the Content field (optional).",
+                "For optional cover image: Go to GitHub → Images folder.",
                 "Upload your image file there.",
-                "Copy the GitHub link for the image.",
-                "Paste that link into the Image URL field here.",
+                "Copy the GitHub image path (for example 'Images/projectBlog2025/...'.",
+                "Paste image path into the Image field here.",
+                "Click Upload Post."
             ],
         },
         contact: {
             header: "Contact Upload Instructions",
             steps: [
+                "Required field: Name",
                 "Enter the contact’s name.",
-                "Optionally add a description.",
+                "Optional: add a description.",
                 "Paste a link if available (optional).",
-                "Click Upload Contact Information.",
+                "Click Upload Contact Information."
             ],
         },
         blog: {
             header: "Blog Post Instructions",
             steps: [
-                "Go to GitHub → Images folder.",
-                "Upload your blog image.",
-                "Copy the GitHub link for the image.",
-                "Paste the link into the form.",
-                "Fill in title and description, then submit.",
+                "Required fields: Title and Post Content",
+                "For optional image(s): Go to GitHub → Images folder.",
+                "Upload your blog image(s).",
+                "If you have multiple images in a folder, drag and drop them into the Images folder as a folder (makes sub folder under Images).",
+                "Copy the GitHub image path(s) seperated by spaces (for example 'Images/projectBlog2025/image1.jpg Images/projectBlog2025/image2.jpg'.",
+                "Paste image path(s) into the Image field.",
+                "Optional: add the date",
+                "If there are multiple images in a post, reference in the Post Content with figure numbers (in order of the paths entered in Image field, for example, image1.jpg would be Figure 1 and image2.jpg would be Figure 2.",
+                "Click Create Blog Post."
             ],
         },
     };

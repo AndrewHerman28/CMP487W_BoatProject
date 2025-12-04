@@ -311,7 +311,7 @@ function renderBlogPost(postId, postData, user) {
         ${(postData.images || []).map(url => `<figure><img src="${url}" alt="Image"><figcaption>Figure ${postData.images.indexOf(url)+1}</figcaption></figure><br>`).join("")}
       </div>
       <p class="media-description">${postData.description || ""}</p>
-      <div class="media-actions">
+      <div class="media-actions" data-auth="required">
         <button class="pin-btn">${postData.pinned ? "📌" : "📍"}</button>
         <button class="edit-btn">✏️</button>
         <button class="delete-btn">🗑️</button>

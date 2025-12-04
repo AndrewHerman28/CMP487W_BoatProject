@@ -53,7 +53,8 @@ export const ADMIN_EMAILS = [
     "newuser1@gmail.com",
     "ajh7353@psu.edu",
     "hjt106@psu.edu",
-    "Kfp5439@psu.edu"
+    "Kfp5439@psu.edu",
+    "dia5234@psu.edu"
 ];
 
 // =================== Auth Helpers ===================

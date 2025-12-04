@@ -308,7 +308,7 @@ function renderBlogPost(postId, postData, user) {
       <h3 class="media-title">${postData.title || ""}</h3>
       <p class="media-date">${postData.date || ""}</p>
       <div class="media-figures">
-        ${(postData.images || []).map(url => `<img src="${url}" alt="">`).join("")}
+        ${(postData.images || []).map(url => `<figure><img src="${url}" alt="Image"><figcaption>Figure ${postData.images.indexOf(url)+1}</figcaption></figure><br>`).join("")}
       </div>
       <p class="media-description">${postData.description || ""}</p>
       <div class="media-actions">

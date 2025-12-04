@@ -514,7 +514,18 @@ async function loadBlogPosts(user) {
         if (container) container.innerHTML = ""; // clear before rendering
 
         const snapshot = await getAllBlogPosts();
-        snapshot.forEach((doc) => renderBlogPost(doc.id, doc.data(), user));
+        const posts = [];
+        snapshot.forEach(doc => posts.push({ id: doc.id, ...doc.data() }));
+
+        // Sort pinned first, then by date (optional)
+        posts.sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            // secondary sort by date if you want
+            return new Date(b.date) - new Date(a.date);
+        });
+
+        posts.forEach(post => renderBlogPost(post.id, post, user));
 
         toggleAuthElements(user);
     } catch (err) {
@@ -523,6 +534,7 @@ async function loadBlogPosts(user) {
         if (container) container.innerHTML = "<p>Failed to load posts.</p>";
     }
 }
+
 
 
 // ================ Comments ================

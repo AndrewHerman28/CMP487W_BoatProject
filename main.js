@@ -979,7 +979,7 @@ function openEditModal(postId, postData, user, type = "blog") {
                 title: card.querySelector(".media-title")?.textContent || postData.title || "",
                 date: card.querySelector(".media-date")?.textContent || postData.date || "",
                 description: card.querySelector(".media-description")?.textContent || postData.description || "",
-                images: Array.from(card.querySelectorAll(".media-figures img")).map(img => img.src),
+                images: Array.from(card.querySelectorAll(".media-figures img")).map(img => img.getAttribute("src")),
                 pinned: card.dataset.pinned === "true"
             };
         } else {

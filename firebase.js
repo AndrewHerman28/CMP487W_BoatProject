@@ -52,7 +52,8 @@ export const storage = getStorage(app);
 export const ADMIN_EMAILS = [
     "newuser1@gmail.com",
     "ajh7353@psu.edu",
-    "hjt106@psu.edu"
+    "hjt106@psu.edu",
+    "Kfp5439@psu.edu"
 ];
 
 // =================== Auth Helpers ===================
